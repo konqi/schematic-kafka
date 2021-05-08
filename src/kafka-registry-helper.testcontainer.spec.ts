@@ -71,7 +71,7 @@ describe("KafkaRegistryHelper (AVRO)", () => {
   const schema = { type: "string" }
   const message = "test message"
 
-  const registry = new KafkaRegistryHelper({ baseUrl: "http://localhost:8081" })
+  const registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` })
   registry.schemaHandlers[SchemaType.AVRO] = (schema: string) => {
     const avsc: AVSCInstance = parse(schema) // cound add all kinds of configurations here
     return {
@@ -106,7 +106,7 @@ describe("KafkaRegistryHelper (PROTOBUF)", () => {
   })
   const protobufType = new Type("KafkaTestMessage").add(new Field("isCerealSoup", 1, "string"))
 
-  const registry = new KafkaRegistryHelper({ baseUrl: "http://localhost:8081" })
+  const registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` })
 
   registry.schemaHandlers[SchemaType.PROTOBUF] = (schema: string) => {
     // TODO this is where the schema would be used to construct the protobuf type

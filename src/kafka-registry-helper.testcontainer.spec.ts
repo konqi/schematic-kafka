@@ -68,15 +68,18 @@ afterAll(async () => {
 
 describe("KafkaRegistryHelper (AVRO)", () => {
   const subject = "REGISTRY_TEST_SUBJECT"
-  const schema = { type: "string" }
-  const message = "test message"
+  const message = { hello: "world" }
+  const type = AVSCInstance.forValue(message)
+  const jsonSchema = type.toJSON()
+  jsonSchema["name"] = "test"
+  const schema = JSON.stringify(jsonSchema)
   let registry: KafkaRegistryHelper
 
   beforeAll(() => {
     registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` }).withSchemaHandler(
       SchemaType.AVRO,
       (schema: string) => {
-        const avsc: AVSCInstance = parse(schema) // cound add all kinds of configurations here
+        const avsc: AVSCInstance = parse(schema) // could add all kinds of configurations here
         return {
           encode: (message: string) => {
             return avsc.toBuffer(message)
@@ -90,11 +93,9 @@ describe("KafkaRegistryHelper (AVRO)", () => {
   })
 
   it("encodes and decodes AVRO message", async () => {
-    const encodeResult = await registry.encodeForSubject(subject, message, SchemaType.AVRO, JSON.stringify(schema))
-    console.log(encodeResult)
+    const encodeResult = await registry.encodeForSubject(subject, message, SchemaType.AVRO, schema)
     const decodeResult = await registry.decode(encodeResult)
-    console.log(decodeResult)
-    expect(decodeResult.toString()).toEqual(message)
+    expect(decodeResult).toEqual(message)
   })
 })
 

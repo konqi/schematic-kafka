@@ -75,7 +75,7 @@ export class KafkaRegistryHelper {
           references,
         })
         registrySchemaId = checkSchemaResult.id
-        registrySchema = checkSchemaResult.schema
+        registrySchema = checkSchemaResult.schema ?? schema
         registrySchemaType = checkSchemaResult.schemaType
       } catch (e) {
         if (e instanceof SchemaRegistryError && e.errorCode === 404) {
@@ -86,8 +86,10 @@ export class KafkaRegistryHelper {
             references,
           })
           registrySchemaId = registerSchemaResult.id
-          registrySchema = registerSchemaResult.schema
-          registrySchemaType = registerSchemaResult.schemaType
+          // According to https://docs.confluent.io/platform/current/schema-registry/develop/api.html#post--subjects-(string-%20subject)-versions
+          // the register post should return schema, schemaType, references and id. However, the response only contains the id.
+          registrySchema = registerSchemaResult.schema ?? schema
+          registrySchemaType = registerSchemaResult.schemaType ?? schemaType
         } else {
           throw e
         }

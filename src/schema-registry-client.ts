@@ -31,7 +31,7 @@ export interface SchemaDefinition {
   subject: string
   id: number
   version: number
-  schema: string
+  schema?: string
   schemaType?: SchemaType
 }
 
@@ -213,6 +213,7 @@ export class SchemaRegistryClient {
     const path = `${this.basePath}subjects/${subject}/versions`
 
     const body = JSON.stringify(schema)
+
     const requestOptions: RequestOptions = {
       ...this.baseRequestOptions,
       method: "POST",
@@ -237,6 +238,7 @@ export class SchemaRegistryClient {
     const path = `${this.basePath}subjects/${subject}`
 
     const body = JSON.stringify(schema)
+
     const requestOptions: RequestOptions = {
       ...this.baseRequestOptions,
       method: "POST",

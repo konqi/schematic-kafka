@@ -68,28 +68,34 @@ afterAll(async () => {
 
 describe("KafkaRegistryHelper (AVRO)", () => {
   const subject = "REGISTRY_TEST_SUBJECT"
-  const schema = { type: "string" }
-  const message = "test message"
+  const message = { hello: "world" }
+  const type = AVSCInstance.forValue(message)
+  const jsonSchema = type.toJSON()
+  jsonSchema["name"] = "test"
+  const schema = JSON.stringify(jsonSchema)
+  let registry: KafkaRegistryHelper
 
-  const registry = new KafkaRegistryHelper({ baseUrl: "http://localhost:8081" })
-  registry.schemaHandlers[SchemaType.AVRO] = (schema: string) => {
-    const avsc: AVSCInstance = parse(schema) // cound add all kinds of configurations here
-    return {
-      encode: (message: string) => {
-        return avsc.toBuffer(message)
-      },
-      decode: (message: Buffer) => {
-        return avsc.fromBuffer(message)
-      },
-    }
-  }
+  beforeAll(() => {
+    registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` }).withSchemaHandler(
+      SchemaType.AVRO,
+      (schema: string) => {
+        const avsc: AVSCInstance = parse(schema) // could add all kinds of configurations here
+        return {
+          encode: (message: string) => {
+            return avsc.toBuffer(message)
+          },
+          decode: (message: Buffer) => {
+            return avsc.fromBuffer(message)
+          },
+        }
+      }
+    )
+  })
 
   it("encodes and decodes AVRO message", async () => {
-    const encodeResult = await registry.encodeForSubject(subject, message, SchemaType.AVRO, JSON.stringify(schema))
-    console.log(encodeResult)
+    const encodeResult = await registry.encodeForSubject(subject, message, SchemaType.AVRO, schema)
     const decodeResult = await registry.decode(encodeResult)
-    console.log(decodeResult)
-    expect(decodeResult.toString()).toEqual(message)
+    expect(decodeResult).toEqual(message)
   })
 })
 
@@ -105,20 +111,24 @@ describe("KafkaRegistryHelper (PROTOBUF)", () => {
     isCerealSoup: "yes",
   })
   const protobufType = new Type("KafkaTestMessage").add(new Field("isCerealSoup", 1, "string"))
+  let registry: KafkaRegistryHelper
 
-  const registry = new KafkaRegistryHelper({ baseUrl: "http://localhost:8081" })
-
-  registry.schemaHandlers[SchemaType.PROTOBUF] = (schema: string) => {
-    // TODO this is where the schema would be used to construct the protobuf type
-    return {
-      encode: (message: string) => {
-        return protobufType.encode(protobufType.fromObject(JSON.parse(message))).finish() as Buffer
-      },
-      decode: (message: Buffer) => {
-        return JSON.stringify(protobufType.decode(message).toJSON())
-      },
-    }
-  }
+  beforeAll(() => {
+    registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` }).withSchemaHandler(
+      SchemaType.PROTOBUF,
+      (schema: string) => {
+        // TODO this is where the schema would be used to construct the protobuf type
+        return {
+          encode: (message: string) => {
+            return protobufType.encode(protobufType.fromObject(JSON.parse(message))).finish() as Buffer
+          },
+          decode: (message: Buffer) => {
+            return JSON.stringify(protobufType.decode(message).toJSON())
+          },
+        }
+      }
+    )
+  })
 
   afterEach(async () => {
     await registry.schemaRegistryClient.deleteSubject(subject)

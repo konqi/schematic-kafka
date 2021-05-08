@@ -136,11 +136,11 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
   })
 
   it("returns error for unknown schema during check", async () => {
-    const result = await client.checkSchema("unknown_subject", {
+    const result = client.checkSchema("unknown_subject", {
       schemaType: SchemaType.AVRO,
       schema: `{"type":"string"}`,
     })
-    await expect(result).rejects.toThrowError(new SchemaRegistryError(40403, "Subject 'unknown_subject' not found"))
+    await expect(result).rejects.toThrowError(new SchemaRegistryError(404, "Subject 'unknown_subject' not found."))
   })
 })
 

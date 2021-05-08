@@ -1,3 +1,5 @@
+![workflow-status](https://github.com/konqi/schematic-kafka/actions/workflows/github-actions.yml/badge.svg)
+
 # schematic-kafka
 
 This work is based on [avro-schema-registry](https://github.com/bencebalogh/avro-schema-registry).

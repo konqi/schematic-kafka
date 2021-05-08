@@ -244,22 +244,7 @@ export class SchemaRegistryClient {
       path,
     }
 
-    try {
-      return JSON.parse(await this.request(requestOptions, body))
-    } catch (e) {
-      if (e instanceof SchemaRegistryError) {
-        switch (e.errorCode) {
-          case 404:
-          case 40401:
-          case 40403:
-            // squash different 404 errors
-            throw new SchemaRegistryError(404, e.message)
-          default:
-        }
-      }
-
-      throw e
-    }
+    return JSON.parse(await this.request(requestOptions, body))
   }
 
   // TODO: DELETE /subjects/(string: subject)/versions/(versionId: version)
@@ -290,7 +275,11 @@ export class SchemaRegistryClient {
               return resolve(data)
             }
             if (data.length > 0) {
-              const { error_code, message } = JSON.parse(data)
+              let { error_code, message } = JSON.parse(data)
+              // squash different 404 errors
+              if ([404, 40401, 40403].includes(error_code)) {
+                error_code = 404
+              }
               return reject(new SchemaRegistryError(error_code, message))
             } else {
               return reject(new Error("Invalid schema registry response"))

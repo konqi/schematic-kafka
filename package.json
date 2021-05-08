@@ -22,7 +22,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/konqi/avro-schema-registry.git"
+    "url": "git://github.com/konqi/schematic-kafka.git"
   },
   "devDependencies": {
     "@types/jest": "^26.0.23",

@@ -1,7 +1,8 @@
 name: Tests
-push:
-  branches:
-    - "main"
+on:
+  push:
+    branches:
+      - "main"
 jobs:
   test:
     runs-on: ubuntu-latest

@@ -1,4 +1,4 @@
-name: Build
+name: Release
 on:
   release:
     types: [published]
@@ -16,10 +16,14 @@ jobs:
         run: yarn install --frozen-lockfile
       - name: compile
         run: yarn build
-      - name: show event
-        run: export TAG=`cat $GITHUB_EVENT_PATH | jq '.release.tag_name'`
-      - name: package.json version bump
-        run: jq ".version = \"$TAG\"" package.json > package.json.tmp && mv package.json.tmp package.json
+      - name: debug
+        run: echo $GITHUB_EVENT_PATH && cat $GITHUB_EVENT_PATH
+      - name: extract tag from github event payload
+        run: |
+          export TAG=`cat $GITHUB_EVENT_PATH | jq '.release.tag_name'`
+          echo Will publish as version $TAG
+          jq ".version = $TAG" package.json > package.json.tmp
+          mv package.json.tmp package.json
       - name: NPM publish
         uses: JS-DevTools/npm-publish@v1
         with:
@@ -30,5 +34,5 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           git add package.json
-          git commit -m "automatic version bump"
-          git push
+          git commit -m "automatic version $TAG bump"
+          git push origin HEAD:main

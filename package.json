@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "test": "node_modules/.bin/jest",
+    "test:testcontainer": "node_modules/.bin/jest -c jest.testcontainer.config.js",
+    "test:coverage": "node_modules/.bin/jest --collect-coverage",
     "build": "tsc",
     "prebuild": "rimraf dist"
   },

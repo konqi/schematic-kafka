@@ -11,7 +11,7 @@ jobs:
         with:
           node-version: 12
       - name: install dependencies
-        run: yarn install
+        run: yarn install --frozen-lockfile
       - name: jest
         run: yarn test
   testcontainers:

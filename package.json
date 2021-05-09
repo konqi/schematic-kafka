@@ -1,8 +1,11 @@
 {
   "name": "schematic-kafka",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Encode and decode kafka messages with Confluent Schema Registry (pure typescript implementation)",
   "main": "dist/index.js",
+  "files": [
+    "dist/**/*.*"
+  ],
   "scripts": {
     "test": "node_modules/.bin/jest",
     "build": "tsc",

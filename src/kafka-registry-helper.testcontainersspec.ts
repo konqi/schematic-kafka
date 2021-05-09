@@ -17,7 +17,7 @@ beforeAll(async () => {
   // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
   try {
     jest.setTimeout(1000 * 60 * 60 * 10)
-    network = await new Network().start()
+    network = await new Network({ name: "kafka-registry-helper" }).start()
 
     const ZOOKEEPER_CLIENT_PORT = 2181
     zookeeperContainer = await new GenericContainer(`confluentinc/cp-zookeeper:${TAG}`)

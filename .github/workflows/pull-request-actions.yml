@@ -1,7 +1,7 @@
-name: GitHub Actions Demo
-on: [push]
+name: Pull Request
+on: [pull_request]
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -11,10 +11,10 @@ jobs:
         with:
           node-version: 12
       - name: install dependencies
-        run: yarn install
-      - name: compile
-        run: yarn build
-  test:
+        run: yarn install --frozen-lockfile
+      - name: jest
+        run: yarn test
+  testcontainers:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
@@ -26,4 +26,4 @@ jobs:
       - name: install dependencies
         run: yarn install
       - name: jest
-        run: yarn test
+        run: yarn test:testcontainers

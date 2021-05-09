@@ -1,0 +1,34 @@
+name: Build
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: install node v12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: install dependencies
+        run: yarn install --frozen-lockfile
+      - name: compile
+        run: yarn build
+      - name: show event
+        run: export TAG=`cat $GITHUB_EVENT_PATH | jq '.release.tag_name'`
+      - name: package.json version bump
+        run: jq ".version = \"$TAG\"" package.json > package.json.tmp && mv package.json.tmp package.json
+      - name: NPM publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+      - name: push
+        run: |
+          date > generated.txt
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          git add package.json
+          git commit -m "automatic version bump"
+          git push

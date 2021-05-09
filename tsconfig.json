@@ -16,6 +16,6 @@
     "skipDefaultLibCheck": true,
     "outDir": "dist"
   },
-  "include": ["/**/*.ts"],
-  "exclude": ["node_modules", "**/*.spec.ts"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "**/*.spec.ts", "**/*.testcontainersspec.ts"]
 }

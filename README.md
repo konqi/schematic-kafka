@@ -2,11 +2,7 @@
 
 # schematic-kafka
 
-This work is based on [avro-schema-registry](https://github.com/bencebalogh/avro-schema-registry).
-
-There are a couple of differences, the obvious being a pure typescript implementation.
-
-This lib is **schema type agnostic**. It works fine with whatever protocol you may want to use, but it doesn't take care of this aspect.
+This package provides a **schema type agnostic** kafka message encoder/decoder. It works fine with whatever protocol you may want to use, but it doesn't take care of this aspect. Have a look at the code sample below to understand what this means.
 
 ## Quickstart
 
@@ -26,6 +22,8 @@ import { parse, Type as AVSCInstance } from "avsc"
 
 // create instance
 const registry = new KafkaRegistryHelper({ baseUrl: "https://schemaRegistryHost:8081" })
+  // adding a custom schema handler for AVRO
+  // as mentioned before, the library doesn't take care of this
   .withSchemaHandler(SchemaType.AVRO, (schema: string) => {
     // if you want to customize your encoder, this is where you'd do it
     const avsc: AVSCInstance = parse(schema)
@@ -39,22 +37,22 @@ const registry = new KafkaRegistryHelper({ baseUrl: "https://schemaRegistryHost:
     }
   })
 
-// how to decode a message from kafka
-// AVSC return parsed json, so decodedMessage this is an already object, ready to use
+// decode a message from kafka
+// AVSC returns parsed json, so decodedMessage is a ready to use object
 const decodedMessage = await registry.decode(rawMessageFromKafka)
 
-// how to encode a message with a schema
+// encode a message with a schema
 // where
 // - subject    is the kafka topic plus the (-key, -value) postfix
 // - message    the actual message to send (this has to be in whatever format
 //              the schema handler defined above expects in the encode-function)
-// - schemaType (optional) AVRO/PROTOBUF/JSON
-// - schema     (optional) serialized schema to be used
+// - schemaType (optional if already registerd, default: AVRO) AVRO/PROTOBUF/JSON
+// - schema     (optional if already registerd) serialized schema to be used
 // returns      a Buffer that you can send to the kafka broker
 const encodeResult = await registry.encodeForSubject(subject, message, SchemaType.AVRO, schema)
 ```
 
-For more examples, take a look at `src/kafka-registry-helper.testcontainer.spec.ts`.
+For more examples, take a look at `src/kafka-registry-helper.testcontainersspec.ts`.
 
 ## How this library works
 
@@ -66,11 +64,19 @@ This is how a kafka message looks like when you send or receive it.
 [ n bytes | msg    | protocol encoded message                   ]
 ```
 
-The first byte being a zero tells us that the following four bytes contain the schema id. With this schema id we can request the schema type (AVRO, PROTOBUF or JSON) and schema (serialized representation of the schema for the respective schema type) from the schema registry.
+The first byte being a zero tells us that the following four bytes contain the schema id. With this schema id we can request the schema type (AVRO, PROTOBUF or JSON) and schema (serialized representation of the schema for the corresponding schema type) from the schema registry.
 
 This library can decodes whole kafka message header and then calls the appropriate decoder that you provide with the schema as argument.
 
 ## Documentation
+
+The package exports the following things
+
+- `KafkaRegistryHelper` is the wrapper that handles encoding/decoding of messages, it also registeres your payload schemas if the registry doesn't know about them yet
+- `SchemaRegistryClient` is the low level api client that communicates with the schema-registry
+- `SchemaType` Is an enum containing the available schema types (AVRO, PROTOBUF, JSON)
+
+`KafkaRegistryHelper` applies a cache for some of the schema registry requests of `SchemaRegistryClient` to go easy on the network traffic and load.
 
 ### Client SSL authentication
 
@@ -97,31 +103,24 @@ new KafkaRegistryHelper({ baseUrl: "https://schemaRegistryHost:8081", username: 
 new KafkaRegistryHelper({ baseUrl: "https://username:password@schemaRegistryHost:8081" })
 ```
 
-# Doc
-
-The module exports one function only, which expects a `url` parameter, which is a Confluent Schema Registry endpoint and an optional auth object. The function returns an object .
-
-Every method returns a Promise. Every method uses an internal cache to store already retrieved schemas and if the same id or schema is used again it won't perform another network call. Schemas are cached with their parsing options.
-
-## Authentication with the Schema Registry
-
-You can set username and password in the url object:
-
-```
-require('avro-schema-registry')('https://username:password@host.com:8081');
-```
-
-You can pass in an optional second parameter for the registry, with the username and password:
-
-```
-require('avro-schema-registry')('https://host.com:8081', {username: 'username', password: 'password'});
-```
-
-If both the url contains the authencation information and there's an authentication object parameter then the object takes precedence.
-
 ## feature x
 
 TODO - document things hint: Most methods have jsdoc comments on them. Have a look.
+
+# TODO
+
+A few things that need to be done:
+
+- increase test coverage to at least 85%
+- Add missing jsdoc information
+- fix caching mechanism for non-primitive values
+- create working sample/testcontainers-test for PROTOBUF messages
+- create a working example for how to use this package with kafka.js
+- create example for how to configure nestjs kafka-module serializer/deserializer
+
+# Motivation
+
+I created this library out of necessity. I wanted to use [confluent-schema-registry](https://github.com/kafkajs/confluent-schema-registry). However I wasn't able to get a client-certificate TLS-secured connection to a schema-registry working. All I got was an SSL error with code 42 in an underlying layer I wasn't able to configure mappersmith, which handles http connections. I'm aware that a recent merge should fix that, but head version from the repo didn't work for me either. I also didn't like the list dependencies 😉. So had a look at [avro-schema-registry](https://github.com/bencebalogh/avro-schema-registry) which can't use SSL authentication at all. Being a nice little library, I decided to fork and make the changes and, well, things got a little out of hand... Now everything is pure typescript and the package handles just the schema-registry aspect.
 
 # Dependencies
 

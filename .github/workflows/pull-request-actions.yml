@@ -1,7 +1,5 @@
-name: Tests
-push:
-  branches:
-    - "main"
+name: Pull Request
+on: [pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -14,13 +12,8 @@ jobs:
           node-version: 12
       - name: install dependencies
         run: yarn install --frozen-lockfile
-      - name: test with coverage report
-        run: yarn test:coverage
-      - name: Coveralls
-        uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-
+      - name: jest
+        run: yarn test
   testcontainers:
     runs-on: ubuntu-latest
     steps:

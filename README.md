@@ -1,4 +1,4 @@
-![workflow-status](https://github.com/konqi/schematic-kafka/actions/workflows/github-actions.yml/badge.svg)
+![workflow-status](https://github.com/konqi/schematic-kafka/actions/workflows/build-actions.yml/badge.svg) ![test-status](https://github.com/konqi/schematic-kafka/actions/workflows/test-actions.yml/badge.svg) [![Coverage Status](https://coveralls.io/repos/github/konqi/schematic-kafka/badge.svg?branch=main)](https://coveralls.io/github/konqi/schematic-kafka?branch=main)
 
 # schematic-kafka
 

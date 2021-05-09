@@ -1,0 +1,29 @@
+name: Main Build
+on:
+  push:
+    branches:
+      - "main"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: install node v12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: install dependencies
+        run: yarn install
+      - name: compile
+        run: yarn build
+      - name: Automated Version Bump
+        uses: "phips28/gh-action-bump-version@master"
+        with:
+          tag-prefix: ""
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: NPM publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}

@@ -9,3 +9,5 @@ node_modules/
 **/*.secret.*
 
 yarn-error.log
+
+.yarnrc

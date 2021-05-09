@@ -1,0 +1,19 @@
+name: Branch Build
+on:
+  push:
+    branches_ignore:
+      - "main"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+      - name: install node v12
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: install dependencies
+        run: yarn install
+      - name: compile
+        run: yarn build

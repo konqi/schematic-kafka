@@ -2,11 +2,19 @@ import * as httpsRequest from "https"
 import * as httpRequest from "http"
 import { URL } from "url"
 
+/**
+ * Enum of supported schema types / protocols.
+ * If this isn't provided the schema registry will assume AVRO.
+ */
 export enum SchemaType {
   AVRO = "AVRO", // (default)
   PROTOBUF = "PROTOBUF",
   JSON = "JSON",
 }
+
+/**
+ * Custom error to be used by the schema registry client
+ */
 export class SchemaRegistryError extends Error {
   errorCode: number
 
@@ -18,6 +26,10 @@ export class SchemaRegistryError extends Error {
   }
 }
 
+/**
+ * Configuration properties for the schema api client
+ * TODO: allow/forward all configurations for http.request (not just the agent)
+ */
 export interface SchemaApiClientConfiguration {
   baseUrl: string
   username?: string
@@ -27,19 +39,37 @@ export interface SchemaApiClientConfiguration {
 
 type RequestOptions = httpsRequest.RequestOptions | httpRequest.RequestOptions
 
+/**
+ * Full schema definition. Includes everything to know about a given schema version.
+ */
 export interface SchemaDefinition {
   subject: string
   id: number
   version: number
+  /**
+   * serialized schema representation
+   */
   schema?: string
+  /**
+   * schema type (if not given schema registry will assume AVRO)
+   */
   schemaType?: SchemaType
 }
 
+/**
+ * schema registry client to interact with confluent schema registry
+ * as specified here: https://docs.confluent.io/platform/current/schema-registry/develop/api.html
+ *
+ * Note: not all methods are implemented yet
+ */
 export class SchemaRegistryClient {
   baseRequestOptions: RequestOptions
   requester: typeof httpRequest | typeof httpsRequest
   basePath: string
 
+  /**
+   * create new SchemaRegistryClient instance
+   */
   constructor(options: SchemaApiClientConfiguration) {
     const parsed = new URL(options.baseUrl)
 
@@ -64,8 +94,8 @@ export class SchemaRegistryClient {
   // schemas section
   /**
    * Get a schema by its id
-   * @param schemaId
-   * @returns
+   * @param {number} schemaId id of the schema to fetch
+   * @returns serialized schema information and schema type
    */
   async getSchemaById(schemaId: number): Promise<{ schema: string; schemaType: SchemaType }> {
     const path = `${this.basePath}schemas/ids/${schemaId}`
@@ -79,8 +109,8 @@ export class SchemaRegistryClient {
   }
 
   /**
-   * Get types of registered schemas
-   * @returns
+   * Get types of possible schemas types
+   * @returns array of possible schema types (typically: AVRO, PROTOBUF and JSON)
    */
   async getSchemaTypes(): Promise<Array<string>> {
     const path = `${this.basePath}schemas/types`
@@ -95,10 +125,11 @@ export class SchemaRegistryClient {
 
   /**
    * Get subject/version pairs for given id
-   * @param id version of schema registered
+   * @param schemaId version of schema registered
+   * @returns subject and version number for the schema identified by the id
    */
-  async listVersionsForId(id: number): Promise<Array<{ subject: string; version: number }>> {
-    const path = `${this.basePath}schemas/ids/${id}/versions`
+  async listVersionsForId(schemaId: number): Promise<Array<{ subject: string; version: number }>> {
+    const path = `${this.basePath}schemas/ids/${schemaId}/versions`
 
     const versionListRequestOptions: RequestOptions = {
       ...this.baseRequestOptions,
@@ -111,7 +142,7 @@ export class SchemaRegistryClient {
   // subject section
   /**
    * Get list of available subjects
-   * @returns
+   * @returns array of registered subjects
    */
   async listSubjects(): Promise<Array<string>> {
     const path = `${this.basePath}subjects`
@@ -125,9 +156,9 @@ export class SchemaRegistryClient {
   }
 
   /**
-   * GET /subjects/(string: subject)/versions
-   * @param subject
-   * @returns
+   * Get list of versions registered under the specified subject
+   * @param subject subject name
+   * @returns array of schema versions
    */
   async listVersionsForSubject(subject: string): Promise<Array<number>> {
     const versionListRequestOptions: RequestOptions = {
@@ -140,7 +171,7 @@ export class SchemaRegistryClient {
 
   /**
    * Deletes a schema.
-   * Hint: Should only be used in development mode.
+   * Note: Should only be used in development mode. Don't delete schemas in production.
    * @param subject subject name
    * @returns list of deleted schema versions
    */
@@ -158,12 +189,11 @@ export class SchemaRegistryClient {
 
   /**
    * Get schema for subject and version
-   * @param subject
+   * @param subject subject name
    * @param version optional version to retrieve (if not provided the latest version will be fetched)
-   * @returns
+   * @returns schema and its metadata
    */
   async getSchemaForSubjectAndVersion(subject: string, version?: number): Promise<SchemaDefinition> {
-    // TODO: There is also GET /subjects/(string: subject)/versions/(versionId: version)/schema which would return only the schema as response
     const path = `${this.basePath}subjects/${subject}/versions/${version ?? "latest"}`
 
     const schemaInfoRequestOptions: RequestOptions = {
@@ -176,8 +206,8 @@ export class SchemaRegistryClient {
 
   /**
    * Alias for getSchemaForSubjectAndVersion with version = latest
-   * @param subject
-   * @returns
+   * @param subject subject name
+   * @returns schema and its metadata
    */
   async getLatestVersionForSubject(subject: string): ReturnType<SchemaRegistryClient["getSchemaForSubjectAndVersion"]> {
     return await this.getSchemaForSubjectAndVersion(subject)
@@ -185,8 +215,8 @@ export class SchemaRegistryClient {
 
   /**
    * Get schema for subject and version
-   * @param subject
-   * @param schema
+   * @param subject subject name
+   * @param version schema version
    * @returns serialized schema
    */
   async getRawSchemaForSubjectAndVersion(subject: string, version: number): Promise<string> {
@@ -202,9 +232,12 @@ export class SchemaRegistryClient {
 
   /**
    * Register schema in registry
-   * @param subject
-   * @param schema
-   * @returns
+   *
+   * Note: The specification says it will return subject, id, version and the schema itself.
+   *       Factually it will only return the id of the newly created schema.
+   * @param subject subject name
+   * @param schema schema metadata and serialized schema representation
+   * @returns schema metadata (or just the id of the newly created schema)
    */
   async registerSchema(
     subject: string,
@@ -227,13 +260,13 @@ export class SchemaRegistryClient {
   /**
    * Check if a schema has already been registered under the specified subject.
    * If so, this returns the schema string along with its globally unique identifier, its version under this subject and the subject name.
-   * @param subject
-   * @param schema
-   * @returns
+   * @param subject subject name
+   * @param schema serialized schema representation
+   * @returns schema metadata and serialized schema
    */
   async checkSchema(
     subject: string,
-    schema: { schema: string; schemaType: string; references?: any }
+    schema: { schema: string; schemaType?: string; references?: any }
   ): Promise<SchemaDefinition> {
     const path = `${this.basePath}subjects/${subject}`
 
@@ -257,6 +290,9 @@ export class SchemaRegistryClient {
   // TODO: compatibility section
   // TODO: config section
 
+  /**
+   * Internal http request helper
+   */
   private request(requestOptions: RequestOptions, requestBody?: string) {
     if (requestBody && requestBody.length > 0) {
       requestOptions.headers = { ...requestOptions.headers, "Content-Length": Buffer.byteLength(requestBody) }
@@ -270,6 +306,7 @@ export class SchemaRegistryClient {
             data += d
           })
           res.on("error", (e) => {
+            // response error
             reject(e)
           })
           res.on("end", () => {
@@ -277,18 +314,23 @@ export class SchemaRegistryClient {
               return resolve(data)
             }
             if (data.length > 0) {
-              let { error_code, message } = JSON.parse(data)
-              // squash different 404 errors
-              if ([404, 40401, 40403].includes(error_code)) {
-                error_code = 404
+              try {
+                let { error_code, message } = JSON.parse(data)
+                // squash different 404 errors
+                if ([404, 40401, 40403].includes(error_code)) {
+                  error_code = 404
+                }
+                return reject(new SchemaRegistryError(error_code, message))
+              } catch (e) {
+                return reject(e)
               }
-              return reject(new SchemaRegistryError(error_code, message))
             } else {
               return reject(new Error("Invalid schema registry response"))
             }
           })
         })
         .on("error", (e) => {
+          // request error
           reject(e)
         })
       if (requestBody) {

@@ -64,44 +64,175 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
     })
 
     it("resolve with schema if get request returns with 200", async () => {
-      const mockPayload = { id: 1, schema }
-      nock("http://test.com").get("/schemas/ids/1").reply(200, mockPayload)
+      const mockResponse = { id: 1, schema }
+      nock("http://test.com").get("/schemas/ids/1").reply(200, mockResponse)
 
       const result = schemaApi.getSchemaById(1)
-      await expect(result).resolves.toEqual(mockPayload)
+      await expect(result).resolves.toEqual(mockResponse)
     })
   })
 
   describe("getSchemaTypes", () => {
-    // TODO
+    it("resolves with schema types", async () => {
+      const mockResponse = ["AVRO", "PROTOBUF", "JSON"]
+      nock("http://test.com").get("/schemas/types").reply(200, mockResponse)
+
+      const result = schemaApi.getSchemaTypes()
+      await expect(result).resolves.toEqual(mockResponse)
+    })
   })
 
   describe("listSubjects", () => {
-    // TODO
+    it("resolves with available subjects", async () => {
+      const mockResponse = ["subject1", "subject2"]
+      nock("http://test.com").get("/subjects").reply(200, mockResponse)
+
+      const result = schemaApi.listSubjects()
+      await expect(result).resolves.toEqual(mockResponse)
+    })
   })
 
   describe("listVersionsForId", () => {
-    // TODO
+    it("resolves with existing schema versions for a schemaId", async () => {
+      const schemaId = 1
+      const mockResponse = [{ subject: "test-subject1", version: 1 }]
+      nock("http://test.com").get(`/schemas/ids/${schemaId}/versions`).reply(200, mockResponse)
+
+      const result = schemaApi.listVersionsForId(schemaId)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
   })
 
   describe("listVersionsForSubject", () => {
-    // TODO
+    it("resolves with available verions fiven a subject name", async () => {
+      const subject = "subject"
+      const mockResponse = [1, 2, 3, 4]
+      nock("http://test.com").get(`/subjects/${subject}/versions`).reply(200, mockResponse)
+
+      const result = schemaApi.listVersionsForSubject(subject)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
   })
 
   describe("deleteSubject", () => {
-    // TODO
+    it("deletes a subject", async () => {
+      const subject = "subject"
+      const mockResponse = [1, 2, 3, 4]
+      nock("http://test.com").delete(`/subjects/${subject}`).reply(200, mockResponse)
+
+      const result = schemaApi.deleteSubject(subject)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
+
+    it("permanently deletes a subject", async () => {
+      const subject = "subject"
+      const mockResponse = [1, 2, 3, 4]
+      nock("http://test.com").delete(`/subjects/${subject}?permanent=true`).reply(200, mockResponse)
+
+      const result = schemaApi.deleteSubject(subject, true)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
   })
 
   describe("getSchemaForSubjectAndVersion", () => {
-    // TODO
+    it("returns specific version of schema registered under subject", async () => {
+      const subject = "subject"
+      const version = 1
+      const mockResponse = {
+        name: "test",
+        version: 1,
+        schema: '{"type": "string"}',
+      }
+      nock("http://test.com").get(`/subjects/${subject}/versions/${version}`).reply(200, mockResponse)
+
+      const result = schemaApi.getSchemaForSubjectAndVersion(subject, version)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
+
+    it("returns latest version of schema registered under subject", async () => {
+      const subject = "subject"
+      const mockResponse = {
+        name: "test",
+        version: 1,
+        schema: '{"type": "string"}',
+      }
+      nock("http://test.com").get(`/subjects/${subject}/versions/latest`).reply(200, mockResponse)
+
+      const result = schemaApi.getSchemaForSubjectAndVersion(subject)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
+
+    it("getLatestVersionForSubject is an alias for the above", async () => {
+      const subject = "subject"
+      const mockResponse = {
+        name: "test",
+        version: 1,
+        schema: '{"type": "string"}',
+      }
+      nock("http://test.com").get(`/subjects/${subject}/versions/latest`).reply(200, mockResponse)
+
+      const result = schemaApi.getLatestVersionForSubject(subject)
+      await expect(result).resolves.toEqual(mockResponse)
+    })
   })
 
-  describe("getSchemaForSubjectAndId", () => {
-    // TODO
+  describe("getRawSchemaForSubjectAndVersion", () => {
+    it("returns the schema for a given subject and version", async () => {
+      const subject = "subject"
+      const version = 1
+      const mockResponse = { type: "string" }
+
+      nock("http://test.com").get(`/subjects/${subject}/versions/${version}/schema`).reply(200, mockResponse)
+
+      const result = schemaApi.getRawSchemaForSubjectAndVersion(subject, version)
+      await expect(result).resolves.toEqual(JSON.stringify(mockResponse))
+    })
   })
 
   describe("checkSchema", () => {
-    // TODO
+    const fakeSchema = {
+      subject: "test",
+      id: 1,
+      version: 3,
+      schema:
+        '{"type": "record","name": "test","fields":[{"type": "string","name": "field1"},{"type": "int","name": "field2"}]}',
+    }
+
+    it("schema already exists", async () => {
+      const subject = "subject"
+      nock("http://test.com").post(`/subjects/${subject}`).reply(200, fakeSchema)
+
+      const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
+
+      await expect(result).resolves.toEqual(fakeSchema)
+    })
+
+    it("schema does not exist", async () => {
+      const subject = "subject"
+      nock("http://test.com").post(`/subjects/${subject}`).reply(404, { error_code: 404, message: "Nope" })
+
+      const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
+
+      await expect(result).rejects.toThrowError(new SchemaRegistryError(404, "Nope"))
+    })
+
+    it("responds with empty response body", async () => {
+      const subject = "subject"
+      nock("http://test.com").post(`/subjects/${subject}`).reply(404)
+
+      const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
+
+      await expect(result).rejects.toThrowError(new Error("Invalid schema registry response"))
+    })
+
+    it("responds with invalid response body", async () => {
+      const subject = "subject"
+      nock("http://test.com").post(`/subjects/${subject}`).reply(404, "not json")
+
+      const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
+
+      await expect(result).rejects.toThrowError(new SyntaxError("Unexpected token o in JSON at position 1"))
+    })
   })
 
   describe("getLatestVersionForSubject", () => {

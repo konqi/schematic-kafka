@@ -1,8 +1,8 @@
 /**
- *
- * @param encodedMessage
- * @param schemaId
- * @returns
+ * Prefix kafka message with the correct preamble for the given schema id
+ * @param {Buffer} encodedMessage already encoded message
+ * @param {number} schemaId
+ * @returns {Buffer}
  */
 export const kafkaEncode = (schemaId: number, encodedMessage: Buffer): Buffer => {
   if (!(encodedMessage instanceof Buffer)) {
@@ -20,18 +20,18 @@ export const kafkaEncode = (schemaId: number, encodedMessage: Buffer): Buffer =>
 }
 
 /**
- *
- * @param msg
- * @returns
+ * Decode the schema preamble and return schemaId anf payload
+ * @param {Buffer} rawMessage Unencoded message from kafka event
+ * @returns schemaId and unencoded payload
  */
-export const kafkaDecode = (msg: Buffer): { schemaId?: number; payload: Buffer } => {
-  if (msg.readUInt8(0) !== 0) {
+export const kafkaDecode = (rawMessage: Buffer): { schemaId?: number; payload: Buffer } => {
+  if (rawMessage.readUInt8(0) !== 0) {
     // throw new Error(`Missing schema preamble.`)
-    return { payload: msg }
+    return { payload: rawMessage }
   }
 
-  const schemaId = msg.readUInt32BE(1)
-  const payload = msg.slice(5)
+  const schemaId = rawMessage.readUInt32BE(1)
+  const payload = rawMessage.slice(5)
 
   return { schemaId, payload }
 }

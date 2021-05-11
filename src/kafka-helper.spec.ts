@@ -12,3 +12,8 @@ it("can handle payloads that don't use the schema-notation", () => {
   expect(schemaId).toBeUndefined()
   expect(payload.toString()).toEqual("Hello World!")
 })
+
+it("should not allow an argument that is not a buffer", () => {
+  // @ts-ignore
+  expect(() => kafkaEncode(1, "not a buffer")).toThrow()
+})

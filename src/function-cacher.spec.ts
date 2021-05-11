@@ -61,12 +61,12 @@ describe("createCacheFunction", () => {
 
   it("should handle rejected promises properly", async () => {
     mockInnerWorkings.mockRejectedValueOnce("nope")
-    await expect(cachedAsyncFunction("foo", 2, {})).rejects.toEqual("nope")
-    const result = await cachedAsyncFunction("foo", 2, {})
+    await expect(cachedAsyncFunction("foo", 2, { a: "b" })).rejects.toEqual("nope")
+    const result = await cachedAsyncFunction("foo", 2, { a: "b" })
     await expect(result).toEqual(mockInnerWorkings.mock.results[1].value)
 
     // this should change nothing
-    await cachedAsyncFunction("foo", 2, {})
+    await cachedAsyncFunction("foo", 2, { a: "b" })
 
     expect(mockInnerWorkings).toHaveBeenCalledTimes(2)
   })
@@ -86,7 +86,19 @@ describe("createCacheFunction", () => {
     expect(mockInnerWorkings).toHaveBeenCalledTimes(2)
   })
 
-  xit("executes in provided context (required for caching class methods)", () => {
-    expect(true).toBeFalsy()
+  it("executes in provided context (required for caching class methods)", () => {
+    class A {
+      contextValue = "I am context"
+
+      doSomething() {
+        return this.contextValue
+      }
+    }
+    const a = new A()
+
+    // provide context
+    const cachedFunction = cacher.createCachedFunction(a.doSomething, [], a)
+
+    expect(cachedFunction()).toEqual("I am context")
   })
 })

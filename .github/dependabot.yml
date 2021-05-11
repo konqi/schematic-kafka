@@ -1,0 +1,9 @@
+# Documentation: https://docs.github.com/en/github/administering-a-repository/enabling-and-disabling-version-updates
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    open-pull-requests-limit: 20
+    schedule:
+      # Check for updates to GitHub Actions every weekday
+      interval: "daily"

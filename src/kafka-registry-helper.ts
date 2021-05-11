@@ -95,20 +95,21 @@ export class KafkaRegistryHelper {
         }
       }
     } else {
-      const { id, schema } = await this.schemaRegistryClient.getLatestVersionForSubject(subject)
+      const { id, schema, schemaType } = await this.schemaRegistryClient.getLatestVersionForSubject(subject)
       registrySchemaId = id
       registrySchema = schema
+      registrySchemaType = schemaType
     }
 
     return { id: registrySchemaId, schema: registrySchema, schemaType: registrySchemaType ?? schemaType }
   }
 
   /**
-   *
-   * @param schemaId
+   * Encode a message with a given schema id
+   * @param schemaId id of the schema
    * @param message formatted in whatever type SchemaHandler works with
-   * @param schemaType
-   * @returns
+   * @param schemaType (optional, default = AVRO) schema type can be given, mostly for safety reason
+   * @returns message encoded with schema associated with schema id
    */
   async encodeForId(schemaId: number, message: any, schemaType: SchemaType = SchemaType.AVRO) {
     if (!this.schemaHandlers.get(schemaType)) {
@@ -128,13 +129,13 @@ export class KafkaRegistryHelper {
   }
 
   /**
-   *
-   * @param subject
+   * Encode a message by subject name
+   * @param subject subject name (for kafka messages, don't forget the -key/-value postfix)
    * @param message formatted in whatever type SchemaHandler works with
-   * @param schemaType
-   * @param schema
-   * @param references
-   * @returns
+   * @param schemaType (optional, default = AVRO) type of schema (e.g. PROTOBUG)
+   * @param schema serialized representation of the message schema (this will be registered with registry if it doesn't exist there yet)
+   * @param references additional schema references
+   * @returns message encoded for given subject / schema (schema id will be determined automatically)
    */
   async encodeForSubject(
     subject: string,
@@ -142,7 +143,7 @@ export class KafkaRegistryHelper {
     schemaType: SchemaType = SchemaType.AVRO,
     schema?: string,
     references?: any
-  ) {
+  ): Promise<Buffer> {
     if (!this.schemaHandlers.get(schemaType)) {
       throw new Error(`No protocol handler for protocol ${schemaType}`)
     }
@@ -161,25 +162,9 @@ export class KafkaRegistryHelper {
   }
 
   /**
-   *
-   * @param schemaId
-   * @param message formatted in whatever type SchemaHandler works with
-   * @param schemaType
-   * @param registrySchema
-   * @returns
-   */
-  private encodeMessage(schemaId: number, message: any, schemaType: SchemaType, registrySchema: string) {
-    const schemaHandler = this.schemaHandlers.get(schemaType)(registrySchema)
-
-    const encodedMessage = schemaHandler.encode(message)
-
-    return kafkaEncode(schemaId, encodedMessage)
-  }
-
-  /**
-   *
-   * @param message
-   * @returns whatever the SchemaHandler for the schemaType produces
+   * decode a kafka event message
+   * @param message message with or without schema preamble. Note: If the preamble is missing the payload will be passed through
+   * @returns message in whatever format the SchemaHandler for the schemaType produces
    */
   async decode(message: Buffer): Promise<any> {
     const { schemaId, payload } = kafkaDecode(message)
@@ -192,5 +177,21 @@ export class KafkaRegistryHelper {
     } else {
       return payload
     }
+  }
+
+  /**
+   * handle message encoding with schemaHandler
+   * @param schemaId id of the schema
+   * @param message formatted in whatever type SchemaHandler works with
+   * @param schemaType schema type, schema handler for this type has to be registered
+   * @param schema the schema as provided by the protocol handler
+   * @returns message encoded with handler corresponding to the schemaType
+   */
+  private encodeMessage(schemaId: number, message: any, schemaType: SchemaType, schema: string) {
+    const schemaHandler = this.schemaHandlers.get(schemaType)(schema)
+
+    const encodedMessage = schemaHandler.encode(message)
+
+    return kafkaEncode(schemaId, encodedMessage)
   }
 }

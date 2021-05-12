@@ -1,69 +1,29 @@
 import { parse, Type as AVSCInstance } from "avsc"
 import { Field, Type } from "protobufjs"
-import { StartedTestContainer, StartedNetwork, Network, GenericContainer } from "testcontainers"
+import { StartedDockerComposeEnvironment } from "testcontainers"
 
-import { KafkaRegistryHelper } from "./kafka-registry-helper"
-import { SchemaType } from "./schema-registry-client"
+import { KafkaRegistryHelper } from "../kafka-registry-helper"
+import { SchemaType } from "../schema-registry-client"
+import { up } from "./helper"
 
-let zookeeperContainer: StartedTestContainer
-let kafkaContainer: StartedTestContainer
-let schemaRegistryContainer: StartedTestContainer
-let network: StartedNetwork
-let registryPort: number
+let testcontainers: StartedDockerComposeEnvironment
+let schemaRegistryPort: number
 
 beforeAll(async () => {
-  const TAG = "5.5.4"
-
   // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
-  try {
-    jest.setTimeout(1000 * 60 * 60 * 10)
-    network = await new Network({ name: "kafka-registry-helper" }).start()
+  jest.setTimeout(1000 * 60 * 10)
 
-    const ZOOKEEPER_CLIENT_PORT = 2181
-    zookeeperContainer = await new GenericContainer(`confluentinc/cp-zookeeper:${TAG}`)
-      .withName("zookeeper")
-      .withEnv("ZOOKEEPER_CLIENT_PORT", `${ZOOKEEPER_CLIENT_PORT}`)
-      .withNetworkMode(network.getName())
-      .start()
+  const env = await up()
+  testcontainers = env.testcontainers
+  schemaRegistryPort = env.schemaRegistryPort
 
-    const zookeeperHost = `zookeeper:${ZOOKEEPER_CLIENT_PORT}`
-    kafkaContainer = await new GenericContainer(`confluentinc/cp-kafka:${TAG}`)
-      .withName("kafka")
-      .withNetworkMode(network.getName())
-      .withEnv("KAFKA_ZOOKEEPER_CONNECT", zookeeperHost)
-      .withEnv("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP", "PLAINTEXT:PLAINTEXT")
-      .withEnv("KAFKA_ADVERTISED_LISTENERS", "PLAINTEXT://:9092")
-      .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
-      .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
-      .withEnv("KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR", "1")
-      .withExposedPorts(9092)
-      .start()
-
-    schemaRegistryContainer = await new GenericContainer(`confluentinc/cp-schema-registry:${TAG}`)
-      .withNetworkMode(network.getName())
-      .withEnv("SCHEMA_REGISTRY_HOST_NAME", "schema-registry")
-      .withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", `kafka:9092`)
-      .withExposedPorts(8081)
-      .start()
-
-    registryPort = schemaRegistryContainer.getMappedPort(8081)
-    jest.setTimeout(15000)
-  } catch (e) {
-    if (zookeeperContainer) await zookeeperContainer.stop()
-    if (kafkaContainer) await kafkaContainer.stop()
-    if (schemaRegistryContainer) await schemaRegistryContainer.stop()
-    if (network) await network.stop()
-
-    throw e
-  }
+  jest.setTimeout(15000)
 })
 
 afterAll(async () => {
-  jest.setTimeout(1000 * 60 * 60 * 10)
-  if (zookeeperContainer) await zookeeperContainer.stop()
-  if (kafkaContainer) await kafkaContainer.stop()
-  if (schemaRegistryContainer) await schemaRegistryContainer.stop()
-  if (network) await network.stop()
+  jest.setTimeout(60000)
+
+  await testcontainers?.down()
 })
 
 describe("KafkaRegistryHelper (AVRO)", () => {
@@ -76,7 +36,7 @@ describe("KafkaRegistryHelper (AVRO)", () => {
   let registry: KafkaRegistryHelper
 
   beforeAll(() => {
-    registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` }).withSchemaHandler(
+    registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${schemaRegistryPort}` }).withSchemaHandler(
       SchemaType.AVRO,
       (schema: string) => {
         const avsc: AVSCInstance = parse(schema) // could add all kinds of configurations here
@@ -114,7 +74,7 @@ describe("KafkaRegistryHelper (PROTOBUF)", () => {
   let registry: KafkaRegistryHelper
 
   beforeAll(() => {
-    registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${registryPort}` }).withSchemaHandler(
+    registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${schemaRegistryPort}` }).withSchemaHandler(
       SchemaType.PROTOBUF,
       (schema: string) => {
         // TODO this is where the schema would be used to construct the protobuf type

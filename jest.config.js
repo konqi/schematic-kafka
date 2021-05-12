@@ -6,4 +6,5 @@ module.exports = {
       tsconfig: "tsconfig.spec.json",
     },
   },
+  testPathIgnorePatterns: ["/node_modules/", "src/testcontainers"],
 }

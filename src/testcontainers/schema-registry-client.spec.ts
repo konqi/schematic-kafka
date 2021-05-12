@@ -1,65 +1,25 @@
-import { SchemaRegistryClient, SchemaRegistryError, SchemaType } from "./schema-registry-client"
-import { GenericContainer, Network, StartedNetwork, StartedTestContainer } from "testcontainers"
+import { SchemaRegistryClient, SchemaRegistryError, SchemaType } from "../schema-registry-client"
+import { StartedDockerComposeEnvironment } from "testcontainers"
+import { up } from "./helper"
 
-let zookeeperContainer: StartedTestContainer
-let kafkaContainer: StartedTestContainer
-let schemaRegistryContainer: StartedTestContainer
-let network: StartedNetwork
-let registryPort: number
+let testcontainers: StartedDockerComposeEnvironment
+let schemaRegistryPort: number
 
 beforeAll(async () => {
-  const TAG = "5.5.4"
-
   // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
-  try {
-    jest.setTimeout(1000 * 60 * 60 * 10)
-    network = await new Network({ name: "schema-registry-client" }).start()
+  jest.setTimeout(1000 * 60 * 10)
 
-    const ZOOKEEPER_CLIENT_PORT = 2181
-    zookeeperContainer = await new GenericContainer(`confluentinc/cp-zookeeper:${TAG}`)
-      .withName("zookeeper")
-      .withEnv("ZOOKEEPER_CLIENT_PORT", `${ZOOKEEPER_CLIENT_PORT}`)
-      .withNetworkMode(network.getName())
-      .start()
+  const env = await up()
+  testcontainers = env.testcontainers
+  schemaRegistryPort = env.schemaRegistryPort
 
-    const zookeeperHost = `zookeeper:${ZOOKEEPER_CLIENT_PORT}`
-    kafkaContainer = await new GenericContainer(`confluentinc/cp-kafka:${TAG}`)
-      .withName("kafka")
-      .withNetworkMode(network.getName())
-      .withEnv("KAFKA_ZOOKEEPER_CONNECT", zookeeperHost)
-      .withEnv("KAFKA_LISTENER_SECURITY_PROTOCOL_MAP", "PLAINTEXT:PLAINTEXT")
-      .withEnv("KAFKA_ADVERTISED_LISTENERS", "PLAINTEXT://:9092")
-      .withEnv("KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR", "1")
-      .withEnv("KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS", "0")
-      .withEnv("KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR", "1")
-      .withExposedPorts(9092)
-      .start()
-
-    schemaRegistryContainer = await new GenericContainer(`confluentinc/cp-schema-registry:${TAG}`)
-      .withNetworkMode(network.getName())
-      .withEnv("SCHEMA_REGISTRY_HOST_NAME", "schema-registry")
-      .withEnv("SCHEMA_REGISTRY_KAFKASTORE_BOOTSTRAP_SERVERS", `kafka:9092`)
-      .withExposedPorts(8081)
-      .start()
-
-    registryPort = schemaRegistryContainer.getMappedPort(8081)
-    jest.setTimeout(15000)
-  } catch (e) {
-    if (zookeeperContainer) await zookeeperContainer.stop()
-    if (kafkaContainer) await kafkaContainer.stop()
-    if (schemaRegistryContainer) await schemaRegistryContainer.stop()
-    if (network) await network.stop()
-
-    throw e
-  }
+  jest.setTimeout(15000)
 })
 
 afterAll(async () => {
-  jest.setTimeout(1000 * 60 * 60 * 10)
-  if (zookeeperContainer) await zookeeperContainer.stop()
-  if (kafkaContainer) await kafkaContainer.stop()
-  if (schemaRegistryContainer) await schemaRegistryContainer.stop()
-  if (network) await network.stop()
+  jest.setTimeout(60000)
+
+  await testcontainers?.down()
 })
 
 describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
@@ -70,7 +30,7 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
 
   beforeAll(async () => {
     client = new SchemaRegistryClient({
-      baseUrl: `http://localhost:${registryPort}`,
+      baseUrl: `http://localhost:${schemaRegistryPort}`,
     })
 
     const result = await client.registerSchema(subject, { schemaType: SchemaType.AVRO, schema: `{"type":"string"}` })
@@ -158,7 +118,7 @@ describe("SchemaRegistryClient PROTOBUF (Black-Box Tests)", () => {
 
   beforeAll(async () => {
     client = new SchemaRegistryClient({
-      baseUrl: `http://localhost:${registryPort}`,
+      baseUrl: `http://localhost:${schemaRegistryPort}`,
     })
 
     const result = await client.registerSchema(subject, {

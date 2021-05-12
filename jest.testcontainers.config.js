@@ -6,5 +6,5 @@ module.exports = {
       tsconfig: "tsconfig.spec.json",
     },
   },
-  testRegex: "(\\.|\\/)testcontainers(test|spec)\\.[jt]sx?$",
+  testRegex: "testcontainers/.*(\\.|\\/)(test|spec)\\.[jt]sx?$",
 }

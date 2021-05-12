@@ -8,7 +8,7 @@ This package provides a **schema type agnostic** kafka message encoder/decoder. 
 
 ### Install
 
-```
+```bash
 npm install avsc schematic-kafka
 # or
 yarn add avsc schematic-kafka
@@ -16,7 +16,7 @@ yarn add avsc schematic-kafka
 
 ### Use
 
-```
+```typescript
 import { KafkaRegistryHelper, SchemaType } from "schematic-kafka"
 import { parse, Type as AVSCInstance } from "avsc"
 
@@ -82,7 +82,7 @@ The package exports the following things
 
 This library uses node's http/https request. As such you can provide an Agent to modify your requests.
 
-```
+```typescript
 import { Agent } from "https"
 
 const agent = new Agent({
@@ -95,7 +95,7 @@ new KafkaRegistryHelper({ baseUrl: "https://schemaRegistryHost:8081", agent })
 
 ### Basic authentication
 
-```
+```typescript
 new KafkaRegistryHelper({ baseUrl: "https://schemaRegistryHost:8081", username: "username", password: "password })
 
 // OR

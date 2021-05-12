@@ -1,10 +1,13 @@
 import { parse, Type as AVSCInstance } from "avsc"
-import { Field, Type } from "protobufjs"
+import { Type, parse as protobufParse } from "protobufjs"
 import { StartedDockerComposeEnvironment } from "testcontainers"
 
 import { KafkaRegistryHelper } from "../kafka-registry-helper"
 import { SchemaType } from "../schema-registry-client"
 import { up } from "./helper"
+
+import { dirname } from "path"
+import { readFileSync } from "fs"
 
 let testcontainers: StartedDockerComposeEnvironment
 let schemaRegistryPort: number
@@ -61,29 +64,42 @@ describe("KafkaRegistryHelper (AVRO)", () => {
 
 describe("KafkaRegistryHelper (PROTOBUF)", () => {
   const subject = "REGISTRY_TEST_PROTOBUF_SUBJECT-value"
-  const schema = `syntax = "proto3";
-  package com.example;
+  const message = {
+    isCerealSoup: "maybe",
+  }
+  const schema = readFileSync(`${dirname(__filename)}/KafkaTestMessage.proto`).toString()
 
-  message KafkaTestMessage {
-      string is_cereal_soup = 1;
-  }`
-  const message = JSON.stringify({
-    isCerealSoup: "yes",
-  })
-  const protobufType = new Type("KafkaTestMessage").add(new Field("isCerealSoup", 1, "string"))
   let registry: KafkaRegistryHelper
 
   beforeAll(() => {
     registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${schemaRegistryPort}` }).withSchemaHandler(
       SchemaType.PROTOBUF,
       (schema: string) => {
-        // TODO this is where the schema would be used to construct the protobuf type
+        // function to traverse protobuf definition to find all the types (there should only be one)
+        const findTypes = (src: any) => {
+          if (src instanceof Type) {
+            return src.name
+          } else if (src.nested) {
+            return findTypes(src.nested)
+          } else if (typeof src === "object") {
+            return Object.values(src).map(findTypes).flat()
+          }
+
+          return null
+        }
+
+        // construct protobuf parser from schema type
+        const root = protobufParse(schema).root
+        const types = findTypes(root)
+        if (types.length !== 1) throw Error("There can only be one type")
+        const protobufType = root.lookupType(types[0])
+
         return {
-          encode: (message: string) => {
-            return protobufType.encode(protobufType.fromObject(JSON.parse(message))).finish() as Buffer
+          encode: (message: any) => {
+            return protobufType.encode(message).finish() as Buffer
           },
           decode: (message: Buffer) => {
-            return JSON.stringify(protobufType.decode(message).toJSON())
+            return protobufType.decode(message)
           },
         }
       }
@@ -97,9 +113,7 @@ describe("KafkaRegistryHelper (PROTOBUF)", () => {
 
   it("encodes and decodes message", async () => {
     const encodeResult = await registry.encodeForSubject(subject, message, SchemaType.PROTOBUF, schema)
-    console.log(encodeResult)
     const decodeResult = await registry.decode(encodeResult)
-    console.log(decodeResult)
-    expect(decodeResult.toString()).toEqual(message)
+    expect(decodeResult).toEqual(message)
   })
 })

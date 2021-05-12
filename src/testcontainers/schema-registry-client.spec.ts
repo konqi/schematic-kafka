@@ -1,33 +1,24 @@
 import { SchemaRegistryClient, SchemaRegistryError, SchemaType } from "../schema-registry-client"
-import { DockerComposeEnvironment, StartedDockerComposeEnvironment, Wait } from "testcontainers"
-import { findPort } from "./helper"
+import { StartedDockerComposeEnvironment } from "testcontainers"
+import { up } from "./helper"
 
 let testcontainers: StartedDockerComposeEnvironment
-let registryPort: number
+let schemaRegistryPort: number
 
 beforeAll(async () => {
-  const TAG = "5.5.4"
-
   // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
   jest.setTimeout(1000 * 60 * 10)
 
-  const kafkaPort = await findPort()
-
-  testcontainers = await new DockerComposeEnvironment(".", "docker-compose.yml")
-    .withEnv("TAG", TAG)
-    .withEnv("KAFKA_PORT", `${kafkaPort}`)
-    .withWaitStrategy("zookeeper_1", Wait.forLogMessage("binding to port"))
-    .withWaitStrategy("broker_1", Wait.forLogMessage("Awaiting socket connections"))
-    .withStartupTimeout(1000 * 60 * 3)
-    .up()
-
-  registryPort = testcontainers.getContainer("schema-registry_1").getMappedPort(8081)
+  const env = await up()
+  testcontainers = env.testcontainers
+  schemaRegistryPort = env.schemaRegistryPort
 
   jest.setTimeout(15000)
 })
 
 afterAll(async () => {
   jest.setTimeout(60000)
+
   await testcontainers?.down()
 })
 
@@ -39,7 +30,7 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
 
   beforeAll(async () => {
     client = new SchemaRegistryClient({
-      baseUrl: `http://localhost:${registryPort}`,
+      baseUrl: `http://localhost:${schemaRegistryPort}`,
     })
 
     const result = await client.registerSchema(subject, { schemaType: SchemaType.AVRO, schema: `{"type":"string"}` })
@@ -127,7 +118,7 @@ describe("SchemaRegistryClient PROTOBUF (Black-Box Tests)", () => {
 
   beforeAll(async () => {
     client = new SchemaRegistryClient({
-      baseUrl: `http://localhost:${registryPort}`,
+      baseUrl: `http://localhost:${schemaRegistryPort}`,
     })
 
     const result = await client.registerSchema(subject, {

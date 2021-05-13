@@ -1,10 +1,10 @@
 import { parse, Type as AVSCInstance } from "avsc"
-import { Type, parse as protobufParse } from "protobufjs"
+import { parse as protobufParse } from "protobufjs"
 import { StartedDockerComposeEnvironment } from "testcontainers"
 
 import { KafkaRegistryHelper } from "../kafka-registry-helper"
 import { SchemaType } from "../schema-registry-client"
-import { up } from "./helper"
+import { findTypes, up } from "./helper"
 
 import { dirname } from "path"
 import { readFileSync } from "fs"
@@ -75,19 +75,6 @@ describe("KafkaRegistryHelper (PROTOBUF)", () => {
     registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${schemaRegistryPort}` }).withSchemaHandler(
       SchemaType.PROTOBUF,
       (schema: string) => {
-        // function to traverse protobuf definition to find all the types (there should only be one)
-        const findTypes = (src: any) => {
-          if (src instanceof Type) {
-            return src.name
-          } else if (src.nested) {
-            return findTypes(src.nested)
-          } else if (typeof src === "object") {
-            return Object.values(src).map(findTypes).flat()
-          }
-
-          return null
-        }
-
         // construct protobuf parser from schema type
         const root = protobufParse(schema).root
         const types = findTypes(root)

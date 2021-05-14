@@ -115,9 +115,10 @@ A few things that need to be done:
 - ✅ stretch goal: test coverage of at least 95%
 - ✅ Add missing jsdoc information
 - ✅ fix caching mechanism for non-primitive values
-- create working sample/testcontainers-test for PROTOBUF messages
+- ✅ create working sample/testcontainers-test for PROTOBUF messages
 - create a working example for how to use this package with kafka.js
 - create example for how to configure nestjs kafka-module serializer/deserializer
+- create working example for use of referenced schemas (AVRO/PROTOBUF)
 
 # Motivation
 

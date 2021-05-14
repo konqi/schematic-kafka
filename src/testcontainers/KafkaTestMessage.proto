@@ -1,0 +1,6 @@
+syntax = "proto3";
+package com.example;
+
+message KafkaTestMessage {
+    string is_cereal_soup = 1;
+}

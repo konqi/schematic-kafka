@@ -1,5 +1,6 @@
 import { AddressInfo, createServer } from "net"
 import { DockerComposeEnvironment, Wait } from "testcontainers"
+import { Type } from "protobufjs"
 
 const TAG = "5.5.4"
 
@@ -31,4 +32,23 @@ export const up = async () => {
     testcontainers,
     schemaRegistryPort,
   }
+}
+
+// function to traverse protobuf definition to find all the types (there should only be one)
+export const findTypes = (src: any) => {
+  const types: string[] = []
+
+  const dive = (src: any) => {
+    if (src instanceof Type) {
+      types.push(src.name)
+    } else if (src.nested) {
+      dive(src.nested)
+    } else if (typeof src === "object") {
+      Object.values(src).map(dive)
+    }
+  }
+
+  dive(src)
+
+  return types
 }

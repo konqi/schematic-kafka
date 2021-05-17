@@ -5,7 +5,7 @@ import { Type } from "protobufjs"
 const TAG = "5.5.4"
 
 export const findPort = () =>
-  new Promise((resolve) => {
+  new Promise<number>((resolve) => {
     const server = createServer()
     server.listen(0, () => {
       const { port } = server.address() as AddressInfo
@@ -27,12 +27,11 @@ export const up = async () => {
     .up()
 
   const schemaRegistryPort = testcontainers.getContainer("schema-registry_1").getMappedPort(8081)
-  const brokerPort = testcontainers.getContainer("broker_1").getMappedPort(9092)
 
   return {
     testcontainers,
     schemaRegistryPort,
-    brokerPort,
+    brokerPort: kafkaPort,
   }
 }
 

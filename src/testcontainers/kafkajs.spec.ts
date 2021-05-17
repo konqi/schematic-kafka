@@ -1,4 +1,4 @@
-import { parse, Type as AVSCInstance } from "avsc"
+import { parse, Type } from "avsc"
 import { StartedDockerComposeEnvironment } from "testcontainers"
 
 import { KafkaRegistryHelper } from "../kafka-registry-helper"
@@ -18,6 +18,8 @@ beforeAll(async () => {
   testcontainers = env.testcontainers
   schemaRegistryPort = env.schemaRegistryPort
   brokerPort = env.brokerPort
+  //   schemaRegistryPort = 56785
+  //   brokerPort = 9092
 
   jest.setTimeout(15000)
 })
@@ -30,24 +32,27 @@ afterAll(async () => {
 
 describe("kafkajs producer/consumer test (with AVRO)", () => {
   let registry: KafkaRegistryHelper
+  let kafka: Kafka
+  let producer: Producer
+  let consumer: Consumer
 
   const topic = "schematic-kafka-test-topic"
   const key = { id: 0x0815 }
   const value = { text: "Text message" }
 
-  const kafka = new Kafka({
-    clientId: "my-app",
-    brokers: [`localhost:${brokerPort}`],
-  })
-
-  let producer: Producer
-  let consumer: Consumer
+  // schema preparation (registry requires the schema to have a name)
+  const keySchemaJson = Type.forValue(key).toJSON()
+  keySchemaJson["name"] = `key`
+  const keySchema = JSON.stringify(keySchemaJson)
+  const valueSchemaJson = Type.forValue(value).toJSON()
+  valueSchemaJson["name"] = `value`
+  const valueSchema = JSON.stringify(valueSchemaJson)
 
   beforeAll(async () => {
     registry = new KafkaRegistryHelper({ baseUrl: `http://localhost:${schemaRegistryPort}` }).withSchemaHandler(
       SchemaType.AVRO,
       (schema: string) => {
-        const avsc: AVSCInstance = parse(schema) // could add all kinds of configurations here
+        const avsc: Type = parse(schema) // could add all kinds of configurations here
         return {
           encode: (message: string) => {
             return avsc.toBuffer(message)
@@ -58,6 +63,20 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
         }
       }
     )
+
+    // handle connect / subscribe of producers and subscribers here to keep the actual test simple
+    kafka = new Kafka({
+      clientId: "my-app",
+      brokers: [`localhost:${brokerPort}`],
+    })
+
+    producer = kafka.producer()
+    await producer.connect()
+
+    consumer = kafka.consumer({ groupId: "schematic-kafka-test-group" })
+    await consumer.connect()
+
+    await consumer.subscribe({ topic })
   })
 
   afterAll(async () => {
@@ -67,40 +86,13 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
     await consumer?.disconnect()
   })
 
-  it.concurrent("producer", async () => {
-    producer = kafka.producer()
-    await producer.connect()
+  it("sends and receives encoded message via kafka", async () => {
+    // encode key/value
+    const encodedKey = await registry.encodeForSubject(`${topic}-key`, key, SchemaType.AVRO, keySchema)
+    const encodedValue = await registry.encodeForSubject(`${topic}-value`, value, SchemaType.AVRO, valueSchema)
 
-    // add names to schema
-    const keySchema = AVSCInstance.forValue(key).toJSON()
-    keySchema["name"] = `key`
-    const valueSchema = AVSCInstance.forValue(value).toJSON()
-    valueSchema["name"] = `value`
-
-    console.log(JSON.stringify(keySchema))
-    console.log(JSON.stringify(valueSchema))
-
-    const encodedKey = await registry.encodeForSubject(`${topic}-key`, key, SchemaType.AVRO, JSON.stringify(keySchema))
-    const encodedValue = await registry.encodeForSubject(
-      `${topic}-value`,
-      value,
-      SchemaType.AVRO,
-      JSON.stringify(valueSchema)
-    )
-
-    await producer.send({
-      topic,
-      messages: [{ value: encodedValue, key: encodedKey }],
-    })
-  })
-
-  it.concurrent("consumer", async () => {
-    consumer = kafka.consumer({ groupId: "schematic-kafka-test-group" })
-    await consumer.connect()
-
-    await consumer.subscribe({ topic, fromBeginning: true })
-
-    const message = await new Promise<KafkaMessage>(async (resolve) => {
+    // event receiver
+    const messageReceived = new Promise<KafkaMessage>(async (resolve) => {
       await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
           resolve(message)
@@ -108,6 +100,18 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
       })
     })
 
+    // event sender (delay by 2 seconds so that kafka has a chance to elect a topic leader)
+    const messageProduced = new Promise((resolve) => setTimeout(resolve, 2000)).then(() =>
+      producer.send({
+        topic,
+        messages: [{ value: encodedValue, key: encodedKey }],
+      })
+    )
+
+    // resolve sender / receiver
+    const [message] = await Promise.all<KafkaMessage, any>([messageReceived, messageProduced])
+
+    // decode key/value
     const decodedKey = await registry.decode(message.key)
     const decodedValue = await registry.decode(message.value)
 

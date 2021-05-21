@@ -803,7 +803,7 @@ archiver-utils@^2.1.0:
     normalize-path "^3.0.0"
     readable-stream "^2.0.0"
 
-archiver@^5.2.0:
+archiver@^5.3.0:
   version "5.3.0"
   resolved "https://registry.yarnpkg.com/archiver/-/archiver-5.3.0.tgz#dd3e097624481741df626267564f7dd8640a45ba"
   integrity sha512-iUw+oDwK0fgNpvveEsdQ0Ase6IIKztBJU2U0E9MzszMfmVVUyv1QJhS2ITW9ZCqx8dktAxVAjWWkKehuZE8OPg==
@@ -1428,10 +1428,10 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-docker-compose@^0.23.5:
-  version "0.23.9"
-  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.9.tgz#d24343397792562f72a53eb895e76f5c7c751ee8"
-  integrity sha512-ucDcqBoavyQMuxPOpc8y0LqtALc5Y7h/Ga/FEiZ8m+ZqaVf3WuCh5HODtqvGO8HZMGrcH7HPyBqJ+gRJG+dBvg==
+docker-compose@^0.23.8:
+  version "0.23.10"
+  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.10.tgz#369fd2c6429754fb4134d3d29174a8c9569690e8"
+  integrity sha512-IzR6LzHrQyUvVwPNZY6F0oszAQLqHKOMNTN43Yu5aE6IBbhN9D/MpHbVUqHXTwzqIWiJM+ImYFjY5RdWWDGgfQ==
   dependencies:
     yaml "^1.10.2"
 
@@ -1790,7 +1790,7 @@ getpass@^0.1.1:
   dependencies:
     assert-plus "^1.0.0"
 
-glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.6:
+glob@^7.1.1, glob@^7.1.2, glob@^7.1.3, glob@^7.1.4, glob@^7.1.7:
   version "7.1.7"
   resolved "https://registry.yarnpkg.com/glob/-/glob-7.1.7.tgz#3b193e9233f01d42d0b3f78294bbeeb418f94a90"
   integrity sha512-OvD9ENzPLbegENnYP5UUfJIirTg4+XwMWGaQfQTY0JenxNvvIKP3U3/tAQSPIu/lHxXYSZmpXlUHeqAIdKzBLQ==
@@ -3805,19 +3805,19 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^7.10.0:
-  version "7.10.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.10.0.tgz#d0306ac9e54c24006e0de0e4505ca7d4a5a0db9e"
-  integrity sha512-xwz1dzRUmaYTNL4qH8//YlJzSGfVmooGtJNc0ynFm0mtUTyYu4HJLpPZB9e7+/ZiQlWp73LSTH/gSwuNtl8FXw==
+  version "7.11.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.11.0.tgz#47291a7e693b6d8f7a4f03cd0fb2a6a741c53458"
+  integrity sha512-wnTS/foBu3lFjLHRCQLv+nSBnzgp20tWRJVCRXFzU6ivDnFwNbyLMZiHhHZr6hpXtCNAToOlBenlueDA5z1L7g==
   dependencies:
     "@types/archiver" "^5.1.0"
     "@types/dockerode" "^3.2.1"
-    archiver "^5.2.0"
+    archiver "^5.3.0"
     byline "^5.0.0"
     debug "^4.3.1"
-    docker-compose "^0.23.5"
+    docker-compose "^0.23.8"
     dockerode "^3.2.1"
     get-port "^5.1.1"
-    glob "^7.1.6"
+    glob "^7.1.7"
     slash "^3.0.0"
     ssh-remote-port-forward "^1.0.3"
     stream-to-array "^2.3.0"

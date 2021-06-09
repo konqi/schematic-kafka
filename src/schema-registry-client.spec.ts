@@ -1,6 +1,7 @@
 import * as nock from "nock"
 
 import {
+  CompatibilityMode,
   SchemaApiClientConfiguration,
   SchemaRegistryClient,
   SchemaRegistryError,
@@ -258,5 +259,49 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
       const result = schemaApi.getLatestVersionForSubject("topic")
       await expect(result).resolves.toEqual({ schema, id: 1 })
     })
+  })
+
+  fdescribe("compatibility and config", () => {
+    it("should set the schema registry's default compatibilty mode", async () => {
+      nock("http://test.com")
+        .put("/config")
+        .reply(200, (_uri, body: string) => ({
+          compatibility: JSON.parse(body).compatibility,
+        }))
+
+      const result = schemaApi.setConfig(CompatibilityMode.FULL)
+      await expect(result).resolves.toEqual(CompatibilityMode.FULL)
+    })
+    it("should get the schema registry's default compatibility mode", async () => {
+      nock("http://test.com").get("/config").reply(200, {
+        compatibilityLevel: "BACKWARD",
+      })
+
+      const result = schemaApi.getConfig()
+      await expect(result).resolves.toEqual(CompatibilityMode.BACKWARD)
+    })
+
+    it("should set the compatibility mode for a subject", async () => {
+      nock("http://test.com")
+        .put("/config/subject")
+        .reply(200, (_uri, body: string) => ({
+          compatibility: JSON.parse(body).compatibility,
+        }))
+
+      const result = schemaApi.setSubjectConfig("subject", CompatibilityMode.FULL)
+      await expect(result).resolves.toEqual(CompatibilityMode.FULL)
+    })
+
+    it("should get the compatibility mode for a subject", async () => {
+      nock("http://test.com").get("/config/subject").reply(200, {
+        compatibilityLevel: "BACKWARD",
+      })
+
+      const result = schemaApi.getSubjectConfig("subject")
+      await expect(result).resolves.toEqual(CompatibilityMode.BACKWARD)
+    })
+
+    it("should signal compatibility, when schema changes are allowed by compatibity mode", () => {})
+    it("should signal incompatibility, when schema changes are not allowed by compatibity mode", () => {})
   })
 })

@@ -13,6 +13,19 @@ export enum SchemaType {
 }
 
 /**
+ * Enum of supported schema compatibility modes.
+ */
+export enum CompatibilityMode {
+  BACKWARD = "BACKWARD",
+  BACKWARD_TRANSITIVE = "BACKWARD_TRANSITIVE",
+  FORWARD = "FORWARD",
+  FORWARD_TRANSITIVE = "FORWARD_TRANSITIVE",
+  FULL = "FULL",
+  FULL_TRANSITIVE = "FULL_TRANSITIVE",
+  NONE = "NONE",
+}
+
+/**
  * Custom error to be used by the schema registry client
  */
 export class SchemaRegistryError extends Error {
@@ -287,8 +300,111 @@ export class SchemaRegistryClient {
   // TODO: GET /subjects/(string: subject)/versions/{versionId: version}/referencedby
 
   // TODO: mode section
-  // TODO: compatibility section
-  // TODO: config section
+
+  // compatibility section
+  /**
+   * Check a schema for compatibility
+   * @param subject
+   * @param version
+   * @param schema
+   * @param verbose
+   * @returns whether or not the schema is compatible with the provided schema, given the compatibility mode for the subject
+   */
+  async testCompatibility(
+    subject: string,
+    version: number | "latest",
+    schema: { schema: string; schemaType?: string; references?: any },
+    verbose?: boolean
+  ): Promise<boolean> {
+    const path = `${this.basePath}compatibility/subjects/${subject})/versions/${version}${
+      verbose ? "?verbose=true" : ""
+    }`
+    const method = "POST"
+    const body = JSON.stringify(schema)
+
+    const requestOptions: RequestOptions = {
+      ...this.baseRequestOptions,
+      method,
+      headers: { ...this.baseRequestOptions.headers },
+      path,
+    }
+
+    return JSON.parse(await this.request(requestOptions, body)).is_compatible
+  }
+
+  // config section
+  /**
+   * set schema registry default compatibility mode
+   * @param compatibility new default compatibility mode
+   * @returns new compatibility mode as echoed by the schema registry
+   */
+  async setConfig(compatibility: CompatibilityMode) {
+    const path = `${this.basePath}config`
+    const method = "PUT"
+    const body = JSON.stringify({ compatibility })
+
+    const requestOptions: RequestOptions = {
+      ...this.baseRequestOptions,
+      method,
+      headers: { ...this.baseRequestOptions.headers },
+      path,
+    }
+
+    return JSON.parse(await this.request(requestOptions, body)).compatibility
+  }
+
+  /**
+   * get schema registry default compatibility mode
+   */
+  async getConfig(): Promise<CompatibilityMode> {
+    const path = `${this.basePath}config`
+
+    const requestOptions: RequestOptions = {
+      ...this.baseRequestOptions,
+      headers: { ...this.baseRequestOptions.headers },
+      path,
+    }
+
+    return JSON.parse(await this.request(requestOptions)).compatibilityLevel
+  }
+
+  /**
+   * set compatibility mode for a subject
+   * @param subject name of the subject
+   * @param compatibility new compatibility mode
+   * @returns new compatibility mode as echoed by the schema registry
+   */
+  async setSubjectConfig(subject: string, compatibility: CompatibilityMode): Promise<CompatibilityMode> {
+    const path = `${this.basePath}config/${subject}`
+    const method = "PUT"
+    const body = JSON.stringify({ compatibility })
+
+    const requestOptions: RequestOptions = {
+      ...this.baseRequestOptions,
+      method,
+      headers: { ...this.baseRequestOptions.headers },
+      path,
+    }
+
+    return JSON.parse(await this.request(requestOptions, body)).compatibility
+  }
+
+  /**
+   * get compatibility mode for a subject
+   * @param subject name of the subject
+   * @returns current compatibility mode for the subject
+   */
+  async getSubjectConfig(subject: string): Promise<CompatibilityMode> {
+    const path = `${this.basePath}config/${subject}`
+
+    const requestOptions: RequestOptions = {
+      ...this.baseRequestOptions,
+      headers: { ...this.baseRequestOptions.headers },
+      path,
+    }
+
+    return JSON.parse(await this.request(requestOptions)).compatibilityLevel
+  }
 
   /**
    * Internal http request helper

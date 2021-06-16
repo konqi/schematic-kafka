@@ -2,6 +2,11 @@ import { kafkaEncode, kafkaDecode } from "./kafka-helper"
 import { SchemaRegistryClient, SchemaRegistryError, SchemaType } from "./schema-registry-client"
 import { FunctionCacher } from "./function-cacher"
 
+interface DecodedValueWithSubjectVersionInformation {
+  message: any
+  subjects?: Array<{ subject: string; version: number }>
+}
+
 /**
  * Helper class to cache calls to the SchemaRegistryClient
  */
@@ -15,15 +20,14 @@ class CachedSchemaRegistryClient extends SchemaRegistryClient {
   checkSchema = this.cacher.createCachedFunction(super.checkSchema, [true, true], this)
   getLatestVersionForSubject = this.cacher.createCachedFunction(super.getLatestVersionForSubject, [true], this)
   getSchemaById = this.cacher.createCachedFunction(super.getSchemaById, [true], this)
+  listVersionsForId = this.cacher.createCachedFunction(super.listVersionsForId, [true], this)
 }
 
 /**
  * This is a "convenient" method to provide different schema
  * handlers (i.e. AVRO, JSON, PROTOBUF) into the ??
  */
-type SchemaHandlerFactory = (
-  schema: string
-) => {
+type SchemaHandlerFactory = (schema: string) => {
   decode(message: Buffer): any
   encode(message: any): Buffer
 }
@@ -116,10 +120,8 @@ export class KafkaRegistryHelper {
       throw new Error(`No protocol handler for protocol ${schemaType}`)
     }
 
-    const {
-      schema: registrySchema,
-      schemaType: registrySchemaType = SchemaType.AVRO,
-    } = await this.schemaRegistryClient.getSchemaById(schemaId)
+    const { schema: registrySchema, schemaType: registrySchemaType = SchemaType.AVRO } =
+      await this.schemaRegistryClient.getSchemaById(schemaId)
 
     if (schemaType !== registrySchemaType) {
       throw new Error("Mismatch between schemaType argument and schema registry schemaType")
@@ -177,6 +179,24 @@ export class KafkaRegistryHelper {
     } else {
       return payload
     }
+  }
+
+  /**
+   * decode a kafka event message, but queries the schema for possible subject name and versions
+   * @param message message with or without schema preamble. Note: If the preamble is missing the payload will be passed through
+   * @returns decoded message in whatever format the SchemaHandler for the schemaType produces plus a list of possible subject names and versions matching the schema id used for encoding
+   */
+  async decodeWithSubjectAndVersionInformation(message: Buffer): Promise<DecodedValueWithSubjectVersionInformation> {
+    const { schemaId, payload } = kafkaDecode(message)
+    const result: DecodedValueWithSubjectVersionInformation = { message: payload }
+    if (schemaId) {
+      // if schemaType isn't provided, use avro (it's the default)
+      const { schema, schemaType = SchemaType.AVRO } = await this.schemaRegistryClient.getSchemaById(schemaId)
+      result.subjects = await this.schemaRegistryClient.listVersionsForId(schemaId)
+      result.message = this.schemaHandlers.get(schemaType)(schema).decode(payload)
+    }
+
+    return result
   }
 
   /**

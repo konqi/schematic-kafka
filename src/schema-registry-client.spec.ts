@@ -261,7 +261,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
     })
   })
 
-  fdescribe("compatibility and config", () => {
+  describe("compatibility and config", () => {
     it("should set the schema registry's default compatibilty mode", async () => {
       nock("http://test.com")
         .put("/config")

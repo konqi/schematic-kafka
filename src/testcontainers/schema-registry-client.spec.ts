@@ -1,4 +1,4 @@
-import { SchemaRegistryClient, SchemaRegistryError, SchemaType } from "../schema-registry-client"
+import { CompatibilityMode, SchemaRegistryClient, SchemaRegistryError, SchemaType } from "../schema-registry-client"
 import { StartedDockerComposeEnvironment } from "testcontainers"
 import { up } from "./helper"
 
@@ -101,6 +101,50 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
       schema: `{"type":"string"}`,
     })
     await expect(result).rejects.toThrowError(new SchemaRegistryError(404, "Subject 'unknown_subject' not found."))
+  })
+
+  it("fetches default schema compatibility mode", async () => {
+    const defaultCompatibility = await client.getConfig()
+    expect(defaultCompatibility).toEqual(CompatibilityMode.BACKWARD)
+  })
+  it("sets default schema compatibility mode", async () => {
+    const defaultCompatibility = await client.getConfig()
+
+    await client.setConfig(CompatibilityMode.FORWARD)
+    expect(await client.getConfig()).toEqual(CompatibilityMode.FORWARD)
+
+    await client.setConfig(defaultCompatibility)
+  })
+  it("set and fetch subject schema compatibility mode", async () => {
+    const defaultCompatibility = await client.getConfig()
+    await client.setSubjectConfig(subject, CompatibilityMode.FULL_TRANSITIVE)
+    expect(await client.getSubjectConfig(subject)).toEqual(CompatibilityMode.FULL_TRANSITIVE)
+    await client.setSubjectConfig(subject, defaultCompatibility)
+    expect(await client.getSubjectConfig(subject)).toEqual(defaultCompatibility)
+  })
+  it("successfully checks schema compatibility", async () => {
+    // technically this is not a change
+    const compatibility = await client.testCompatibility(subject, "latest", {
+      schemaType: SchemaType.AVRO,
+      schema: `{"type":"string"}`,
+    })
+    expect(compatibility).toEqual(true)
+  })
+  it("returns incompatible for schema check that is breaking change", async () => {
+    const compatibility = await client.testCompatibility(subject, "latest", {
+      schemaType: SchemaType.AVRO,
+      schema: `{"type":"boolean"}`,
+    })
+    expect(compatibility).toEqual(false)
+  })
+  it("rejects upload of incompatible schema", async () => {
+    const request = client.registerSchema(subject, {
+      schemaType: SchemaType.AVRO,
+      schema: `{"type":"boolean"}`,
+    })
+    await expect(request).rejects.toThrowError(
+      new SchemaRegistryError(409, "Schema being registered is incompatible with an earlier schema")
+    )
   })
 })
 

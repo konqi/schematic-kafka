@@ -10,6 +10,8 @@
     "test": "node_modules/.bin/jest",
     "test:testcontainers": "node_modules/.bin/jest -c jest.testcontainers.config.js",
     "test:coverage": "node_modules/.bin/jest --collect-coverage",
+    "docker:up": "docker-compose -f docker-compose.yml -p scematic-kafka up -d",
+    "docker:down": "docker-compose -f docker-compose.yml -p scematic-kafka down",
     "build": "tsc",
     "prebuild": "rimraf dist"
   },

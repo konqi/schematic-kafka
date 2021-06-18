@@ -301,7 +301,29 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
       await expect(result).resolves.toEqual(CompatibilityMode.BACKWARD)
     })
 
-    it("should signal compatibility, when schema changes are allowed by compatibity mode", () => {})
-    it("should signal incompatibility, when schema changes are not allowed by compatibity mode", () => {})
+    it.each`
+      isCompatible
+      ${true}
+      ${false}
+    `(
+      "should signal (in)compatibility, when schema changes are (not) allowed by compatibity mode",
+      async ({ isCompatible }) => {
+        const subject = "custom-subject"
+        const version = "latest"
+        nock("http://test.com").post(`/compatibility/subjects/${subject}/versions/${version}`).reply(200, {
+          is_compatible: isCompatible,
+        })
+        const fakeSchema = {
+          subject: "test",
+          id: 1,
+          version: 3,
+          schema:
+            '{"type": "record","name": "test","fields":[{"type": "string","name": "field1"},{"type": "int","name": "field2"}]}',
+        }
+
+        const result = await schemaApi.testCompatibility(subject, version, fakeSchema)
+        expect(result).toEqual(isCompatible)
+      }
+    )
   })
 })

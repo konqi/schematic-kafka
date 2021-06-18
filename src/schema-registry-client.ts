@@ -316,7 +316,7 @@ export class SchemaRegistryClient {
     schema: { schema: string; schemaType?: string; references?: any },
     verbose?: boolean
   ): Promise<boolean> {
-    const path = `${this.basePath}compatibility/subjects/${subject})/versions/${version}${
+    const path = `${this.basePath}compatibility/subjects/${subject}/versions/${version}${
       verbose ? "?verbose=true" : ""
     }`
     const method = "POST"

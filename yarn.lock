@@ -569,10 +569,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.1.tgz#a6ca6a9a0ff366af433f42f5f0e124794ff6b8f1"
   integrity sha512-FTgBI767POY/lKNDNbIzgAX6miIDBs6NTCbdlDb8TrWovHsSvaVIZDlTqym29C6UqhzwcJx4CYr+AlrMywA0cA==
 
-"@types/archiver@^5.1.0":
-  version "5.1.0"
-  resolved "https://registry.yarnpkg.com/@types/archiver/-/archiver-5.1.0.tgz#869f4ce4028e49cf9a0243cf914415f4cc3d1f3d"
-  integrity sha512-baFOhanb/hxmcOd1Uey2TfFg43kTSmM6py1Eo7Rjbv/ivcl7PXLhY0QgXGf50Hx/eskGCFqPfhs/7IZLb15C5g==
+"@types/archiver@^5.1.1":
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/@types/archiver/-/archiver-5.1.1.tgz#d6d7610de4386b293abd5c1cb1875e0a4f4e1c30"
+  integrity sha512-heuaCk0YH5m274NOLSi66H1zX6GtZoMsdE6TYFcpFFjBjg0FoU4i4/M/a/kNlgNg26Xk3g364mNOYe1JaiEPOQ==
   dependencies:
     "@types/glob" "*"
 
@@ -785,11 +785,6 @@ ansi-styles@^4.0.0, ansi-styles@^4.1.0:
   integrity sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==
   dependencies:
     color-convert "^2.0.1"
-
-any-promise@^1.1.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/any-promise/-/any-promise-1.3.0.tgz#abc6afeedcea52e809cdc0376aed3ce39635d17f"
-  integrity sha1-q8av7tzqUugJzcA3au0845Y10X8=
 
 anymatch@^2.0.0:
   version "2.0.0"
@@ -1374,10 +1369,10 @@ debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@^4.1.0, debug@^4.1.1, debug@^4.3.1:
-  version "4.3.1"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.1.tgz#f0d229c505e0c6d8c49ac553d1b13dc183f6b2ee"
-  integrity sha512-doEwdvm4PCeK4K3RQN2ZC2BYUBaxwLARCqZmMjtF8a51J2Rb0xpVloFRnCODwqjpwnAoao4pelN8l3RJdv3gRQ==
+debug@^4.1.0, debug@^4.1.1, debug@^4.3.2:
+  version "4.3.2"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
+  integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
   dependencies:
     ms "2.1.2"
 
@@ -1448,10 +1443,10 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-docker-compose@^0.23.10:
-  version "0.23.10"
-  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.10.tgz#369fd2c6429754fb4134d3d29174a8c9569690e8"
-  integrity sha512-IzR6LzHrQyUvVwPNZY6F0oszAQLqHKOMNTN43Yu5aE6IBbhN9D/MpHbVUqHXTwzqIWiJM+ImYFjY5RdWWDGgfQ==
+docker-compose@^0.23.12:
+  version "0.23.12"
+  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.12.tgz#fa883b98be08f6926143d06bf9e522ef7ed3210c"
+  integrity sha512-KFbSMqQBuHjTGZGmYDOCO0L4SaML3BsWTId5oSUyaBa22vALuFHNv+UdDWs3HcMylHWKsxCbLB7hnM/nCosWZw==
   dependencies:
     yaml "^1.10.2"
 
@@ -1465,7 +1460,7 @@ docker-modem@^3.0.0:
     split-ca "^1.0.1"
     ssh2 "^0.8.7"
 
-dockerode@^3.2.1:
+dockerode@^3.3.0:
   version "3.3.0"
   resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.3.0.tgz#bedaf48ef9fa9124275a54a9881a92374c51008e"
   integrity sha512-St08lfOjpYCOXEM8XA0VLu3B3hRjtddODphNW5GFoA0AS3JHgoPQKOz0Qmdzg3P+hUPxhb02g1o1Cu1G+U3lRg==
@@ -3684,13 +3679,6 @@ stealthy-require@^1.1.1:
   resolved "https://registry.yarnpkg.com/stealthy-require/-/stealthy-require-1.1.1.tgz#35b09875b4ff49f26a777e509b3090a3226bf24b"
   integrity sha1-NbCYdbT/SfJqd35QmzCQoyJr8ks=
 
-stream-to-array@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/stream-to-array/-/stream-to-array-2.3.0.tgz#bbf6b39f5f43ec30bc71babcb37557acecf34353"
-  integrity sha1-u/azn19D7DC8cbq8s3VXrOzzQ1M=
-  dependencies:
-    any-promise "^1.1.0"
-
 streamsearch@~0.1.2:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/streamsearch/-/streamsearch-0.1.2.tgz#808b9d0e56fc273d809ba57338e929919a1a9f1a"
@@ -3825,22 +3813,21 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^7.10.0:
-  version "7.12.1"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.12.1.tgz#8ca81eadf559ee2ab648d64623e350a13d681d09"
-  integrity sha512-iqUBvEChe7+Z1Q4ChInx21g1vm/Q5mxFnu4B4Y8RgXdaOmLN4eNAbJj0ZbYtR70waFrqJQHBZrODLQzc4uYo5Q==
+  version "7.14.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.14.0.tgz#ccdc31efda1ee0eee7ae8801a2ba06390c79531c"
+  integrity sha512-gRGcMYB8OoHGEv5H3G2n2oBzP2nm21b1bZvenYgGMIFhWKS8w/IyMdmlKNwsDaEKbxm2Mp9BgbH6ThE8zwDscw==
   dependencies:
-    "@types/archiver" "^5.1.0"
+    "@types/archiver" "^5.1.1"
     "@types/dockerode" "^3.2.1"
     archiver "^5.3.0"
     byline "^5.0.0"
-    debug "^4.3.1"
-    docker-compose "^0.23.10"
-    dockerode "^3.2.1"
+    debug "^4.3.2"
+    docker-compose "^0.23.12"
+    dockerode "^3.3.0"
     get-port "^5.1.1"
     glob "^7.1.7"
     slash "^3.0.0"
     ssh-remote-port-forward "^1.0.3"
-    stream-to-array "^2.3.0"
     tar-fs "^2.1.1"
 
 throat@^5.0.0:

@@ -609,10 +609,10 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/dockerode@^3.2.1":
-  version "3.2.3"
-  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.2.3.tgz#ae363b5bfa9f2989dab07f6e7ae3791e6431d145"
-  integrity sha512-nZRhpSxm3PYianRBcRExcHxDvEzYHUPfGCnRL5Fe4/fSEZbtxrRNJ7okzCans3lXxj2t298EynFHGTnTC2f1Iw==
+"@types/dockerode@^3.2.5":
+  version "3.2.6"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.2.6.tgz#b685140753f42a0670a60908d85e1779e75d5a75"
+  integrity sha512-rz50DbrfQGsKOlkLbkknXNyurl2z/yR0CmV/OhzPW3Ef3jbIGoIE+Rd+2UC17gNVrnDl+mpejCI7RqQNe2bEbw==
   dependencies:
     "@types/node" "*"
 
@@ -3813,12 +3813,12 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^7.10.0:
-  version "7.14.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.14.0.tgz#ccdc31efda1ee0eee7ae8801a2ba06390c79531c"
-  integrity sha512-gRGcMYB8OoHGEv5H3G2n2oBzP2nm21b1bZvenYgGMIFhWKS8w/IyMdmlKNwsDaEKbxm2Mp9BgbH6ThE8zwDscw==
+  version "7.15.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.15.0.tgz#9e8c9bc555990013c82eef263bb58942c64cccf1"
+  integrity sha512-XTKITe7GVB7REyqYXxu1aWI/+hlEu7DXORx/wpLG+DN/+t4F7aaCwzqJznVTLrhAteBC0I0exZe1bkE/O1fOTA==
   dependencies:
     "@types/archiver" "^5.1.1"
-    "@types/dockerode" "^3.2.1"
+    "@types/dockerode" "^3.2.5"
     archiver "^5.3.0"
     byline "^5.0.0"
     debug "^4.3.2"

@@ -896,9 +896,9 @@ atob@^2.1.2:
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
 avsc@^5.7.0:
-  version "5.7.1"
-  resolved "https://registry.yarnpkg.com/avsc/-/avsc-5.7.1.tgz#66d38735f39f172cdbdfa757b4d61c345b5b620f"
-  integrity sha512-DGl7UMd1jmmRmVgEcZyf6H3VL74gkLleZguO42vpk2rTNmnFPJlTSYoO5bgcCY2oOHjNnGkSpb2/lrAZwTZ4Rg==
+  version "5.7.2"
+  resolved "https://registry.yarnpkg.com/avsc/-/avsc-5.7.2.tgz#4659cefb0a902d879780fa3f0ef26db1d382b676"
+  integrity sha512-9fZMS1meEfZriKMiLmOlQu4/3WFGkH2BM5aU++iRciUeHJ8L4K0T+bfYqpQS7X2ywEu18Dqp6aq9fIRXkvZ+TQ==
 
 aws-sign2@~0.7.0:
   version "0.7.0"

@@ -3830,9 +3830,9 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^7.10.0:
-  version "7.18.2"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.18.2.tgz#bb61260135d08f8cbf95447f7c086486264da717"
-  integrity sha512-80OIvYQvOul/euZVK710XbgBo5VajV1mJQHyaRuaEyI7GuZykrDqod5waZsTfqkznF35vnItAVeEnH9XmqsuNw==
+  version "7.19.1"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.19.1.tgz#ea881b9c4adf5ad54d843d51add280125510c80f"
+  integrity sha512-ZRzc83nDSGk2tQF94vS4i3shLZZs9KTprvAWWGA2I5rHJhrpyXa41n/YoG/lN2JcOxA02HTHRgR8RkSur1DhyA==
   dependencies:
     "@types/archiver" "^5.1.1"
     "@types/dockerode" "^3.2.5"

@@ -1488,10 +1488,10 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-docker-compose@^0.23.12:
-  version "0.23.12"
-  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.12.tgz#fa883b98be08f6926143d06bf9e522ef7ed3210c"
-  integrity sha512-KFbSMqQBuHjTGZGmYDOCO0L4SaML3BsWTId5oSUyaBa22vALuFHNv+UdDWs3HcMylHWKsxCbLB7hnM/nCosWZw==
+docker-compose@^0.23.13:
+  version "0.23.13"
+  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.13.tgz#77d37bd05b6a966345f631e6d05e961c79514f06"
+  integrity sha512-/9fYC4g3AO+qsqxIZhmbVnFvJJPcYEV2yJbAPPXH+6AytU3urIY8lUAXOlvY8sl4u25pdKu1JrOfAmWC7lJDJg==
   dependencies:
     yaml "^1.10.2"
 
@@ -1505,10 +1505,10 @@ docker-modem@^3.0.0:
     split-ca "^1.0.1"
     ssh2 "^0.8.7"
 
-dockerode@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.3.0.tgz#bedaf48ef9fa9124275a54a9881a92374c51008e"
-  integrity sha512-St08lfOjpYCOXEM8XA0VLu3B3hRjtddODphNW5GFoA0AS3JHgoPQKOz0Qmdzg3P+hUPxhb02g1o1Cu1G+U3lRg==
+dockerode@^3.3.1:
+  version "3.3.1"
+  resolved "https://registry.yarnpkg.com/dockerode/-/dockerode-3.3.1.tgz#74f66e239e092e7910e2beae6322d35c44b08cdc"
+  integrity sha512-AS2mr8Lp122aa5n6d99HkuTNdRV1wkkhHwBdcnY6V0+28D3DSYwhxAk85/mM9XwD3RMliTxyr63iuvn5ZblFYQ==
   dependencies:
     docker-modem "^3.0.0"
     tar-fs "~2.0.1"
@@ -3883,17 +3883,17 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^7.10.0:
-  version "7.20.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.20.0.tgz#cb10590ea38832af8ebf27a229379c4da045aaa6"
-  integrity sha512-g9yOi9Ubj1YijiIvPcst5Q1Uylym9hIEQ5N9Zdde9TXQ6wUpFPUz+JkiReE8zyUItjWI3EOjC+HMeqrYX++IgA==
+  version "7.20.5"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-7.20.5.tgz#d3679c13230bfb263c101d0c2aa019e607670168"
+  integrity sha512-4iZVMI5SM+PFCQx/FOGmzU4/HfrihU7unrp8TBkiJGzM7Ai6/bEFXv78woobxrfaFEWJW3FMvy3P0K5rDEmEDA==
   dependencies:
     "@types/archiver" "^5.1.1"
     "@types/dockerode" "^3.2.5"
     archiver "^5.3.0"
     byline "^5.0.0"
     debug "^4.3.2"
-    docker-compose "^0.23.12"
-    dockerode "^3.3.0"
+    docker-compose "^0.23.13"
+    dockerode "^3.3.1"
     get-port "^5.1.1"
     glob "^7.1.7"
     slash "^3.0.0"

@@ -109,7 +109,8 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
     )
 
     // resolve sender / receiver
-    const [message] = await Promise.all<KafkaMessage, any>([messageReceived, messageProduced])
+    const awaited = await Promise.all<unknown>([messageReceived, messageProduced])
+    const [message] = awaited as [KafkaMessage]
 
     // decode key/value
     const decodedKey = await registry.decode(message.key)

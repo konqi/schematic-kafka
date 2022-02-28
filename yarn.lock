@@ -3913,9 +3913,9 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^8.1.2:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-8.2.0.tgz#41a9ff1b9a1fb50654eeec5478c0451a0179bcef"
-  integrity sha512-s+w9WtgAPHkuEo+eLKEynT3EutaHeGsVqdZCe5xLDFzklToBF/jcUcfIFmI4rxDUI1kJqSnjr0dALzETiqnU6w==
+  version "8.3.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-8.3.0.tgz#69b7415e7f8d29acf80eef3362ef589c70546c17"
+  integrity sha512-ITOdvScAO95xRYL3JeztFgy5flmyFR4z2HKzjA0o68cIwo4C+Lb/cD3K8/J+hRn+6AAZ1IvA//SZs1Qbgzgh6g==
   dependencies:
     "@types/archiver" "^5.1.1"
     "@types/dockerode" "^3.2.5"

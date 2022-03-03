@@ -632,11 +632,20 @@
   dependencies:
     "@babel/types" "^7.3.0"
 
-"@types/dockerode@^3.2.5":
-  version "3.2.6"
-  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.2.6.tgz#b685140753f42a0670a60908d85e1779e75d5a75"
-  integrity sha512-rz50DbrfQGsKOlkLbkknXNyurl2z/yR0CmV/OhzPW3Ef3jbIGoIE+Rd+2UC17gNVrnDl+mpejCI7RqQNe2bEbw==
+"@types/docker-modem@*":
+  version "3.0.2"
+  resolved "https://registry.yarnpkg.com/@types/docker-modem/-/docker-modem-3.0.2.tgz#c49c902e17364fc724e050db5c1d2b298c6379d4"
+  integrity sha512-qC7prjoEYR2QEe6SmCVfB1x3rfcQtUr1n4x89+3e0wSTMQ/KYCyf+/RAA9n2tllkkNc6//JMUZePdFRiGIWfaQ==
   dependencies:
+    "@types/node" "*"
+    "@types/ssh2" "*"
+
+"@types/dockerode@^3.2.7":
+  version "3.3.3"
+  resolved "https://registry.yarnpkg.com/@types/dockerode/-/dockerode-3.3.3.tgz#993de5d8bd3ecb0b0a9277cccc189e9a74e9fbd1"
+  integrity sha512-DBFTE/wiZKodQhDrdkzLVT3K0X1JO/1fTxPaTQN0jiPNdTOFoPt8LYnuYEzalPgVpZbGEeuJTls7qn6jMvuydg==
+  dependencies:
+    "@types/docker-modem" "*"
     "@types/node" "*"
 
 "@types/glob@*":
@@ -719,6 +728,14 @@
   integrity sha512-I7gixRPUvVIyJuCEvnmhr3KvA2dC0639kKswqD4H5b4/FOcnPtNU+qWLiXdKIqqX9twUvi5j0U1mwKE5CUsrfA==
   dependencies:
     "@types/node" "*"
+
+"@types/ssh2@*":
+  version "0.5.51"
+  resolved "https://registry.yarnpkg.com/@types/ssh2/-/ssh2-0.5.51.tgz#8fd9f9d7d3e8973b5227878f8f1e2b4eda1716b3"
+  integrity sha512-aIq7ownezauW/+VWYaeXwd5J1Evnn4EXyeKi7bT3H6ZLBLoqsmhdvkHYPLpnZPM6unKKKsxTHIyQAVOZnPiJBw==
+  dependencies:
+    "@types/node" "*"
+    "@types/ssh2-streams" "*"
 
 "@types/ssh2@^0.5.48":
   version "0.5.48"
@@ -1416,10 +1433,10 @@ debug@^2.2.0, debug@^2.3.3:
   dependencies:
     ms "2.0.0"
 
-debug@^4.1.0, debug@^4.1.1, debug@^4.3.2:
-  version "4.3.2"
-  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.2.tgz#f0a49c18ac8779e31d4a0c6029dfb76873c7428b"
-  integrity sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==
+debug@^4.1.0, debug@^4.1.1, debug@^4.3.3:
+  version "4.3.3"
+  resolved "https://registry.yarnpkg.com/debug/-/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
+  integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
   dependencies:
     ms "2.1.2"
 
@@ -1495,10 +1512,10 @@ diff@^4.0.1:
   resolved "https://registry.yarnpkg.com/diff/-/diff-4.0.2.tgz#60f3aecb89d5fae520c11aa19efc2bb982aade7d"
   integrity sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
 
-docker-compose@^0.23.13:
-  version "0.23.13"
-  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.13.tgz#77d37bd05b6a966345f631e6d05e961c79514f06"
-  integrity sha512-/9fYC4g3AO+qsqxIZhmbVnFvJJPcYEV2yJbAPPXH+6AytU3urIY8lUAXOlvY8sl4u25pdKu1JrOfAmWC7lJDJg==
+docker-compose@^0.23.17:
+  version "0.23.17"
+  resolved "https://registry.yarnpkg.com/docker-compose/-/docker-compose-0.23.17.tgz#8816bef82562d9417dc8c790aa4871350f93a2ba"
+  integrity sha512-YJV18YoYIcxOdJKeFcCFihE6F4M2NExWM/d4S1ITcS9samHKnNUihz9kjggr0dNtsrbpFNc7/Yzd19DWs+m1xg==
   dependencies:
     yaml "^1.10.2"
 
@@ -3913,16 +3930,16 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^8.1.2:
-  version "8.2.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-8.2.0.tgz#41a9ff1b9a1fb50654eeec5478c0451a0179bcef"
-  integrity sha512-s+w9WtgAPHkuEo+eLKEynT3EutaHeGsVqdZCe5xLDFzklToBF/jcUcfIFmI4rxDUI1kJqSnjr0dALzETiqnU6w==
+  version "8.4.0"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-8.4.0.tgz#3a964759908a45bb6b0c3c5ed55bcd9608a9e02d"
+  integrity sha512-QRXsjro71rNvzVpow1rHOsRDfeZz+h0stYOc4fhZVE5Qx7LQ/dxs/pNb2s+8HP1WyxT7Ox3u+vc75S9hCMSUeA==
   dependencies:
     "@types/archiver" "^5.1.1"
-    "@types/dockerode" "^3.2.5"
+    "@types/dockerode" "^3.2.7"
     archiver "^5.3.0"
     byline "^5.0.0"
-    debug "^4.3.2"
-    docker-compose "^0.23.13"
+    debug "^4.3.3"
+    docker-compose "^0.23.17"
     dockerode "^3.3.1"
     get-port "^5.1.1"
     glob "^7.2.0"

@@ -2732,9 +2732,9 @@ jsprim@^1.2.2:
     verror "1.10.0"
 
 kafkajs@*, kafkajs@^2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/kafkajs/-/kafkajs-2.2.0.tgz#43b2d13c82395acee4500f09d6c7d503db8c77ea"
-  integrity sha512-+sdgyLuC0Idw1g9LSBXjtoCr4K+vVaHP+tulzAK+V+HHvO3uW5woNkzLnbBx0MN4WRuEl/5g84M3FSkH0ZDzrA==
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/kafkajs/-/kafkajs-2.2.2.tgz#0b605e9583ac2ac36f843ceb55c93a4f0fee3112"
+  integrity sha512-9wpGLAwRVbVtSew3xwi2f2BMuYLXWhYcoYB/O7gd1JYOYuYTAEC60CeFgRQugI016MxqvOKnOOA+l1jx+4b84g==
 
 kind-of@^3.0.2, kind-of@^3.0.3, kind-of@^3.2.0:
   version "3.2.2"

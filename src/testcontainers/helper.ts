@@ -20,13 +20,12 @@ export const up = async () => {
 
   const testcontainers = await new DockerComposeEnvironment(".", "docker-compose.yml")
     .withEnvironment({ TAG: TAG, KAFKA_PORT: `${kafkaPort}` })
-    .withWaitStrategy("zookeeper-1", Wait.forLogMessage("binding to port"))
-    .withWaitStrategy("broker-1", Wait.forLogMessage("Ready to serve as the new controller"))
-    // .withWaitStrategy("broker_1", Wait.forLogMessage("Ready to serve as the new controller"))
+    .withWaitStrategy("zookeeper", Wait.forLogMessage("binding to port"))
+    .withWaitStrategy("broker", Wait.forLogMessage("Ready to serve as the new controller"))
     .withStartupTimeout(1000 * 60 * 3)
     .up()
 
-  const schemaRegistryPort = testcontainers.getContainer("schema-registry-1").getMappedPort(8081)
+  const schemaRegistryPort = testcontainers.getContainer("schema-registry").getMappedPort(8081)
 
   return {
     testcontainers,

@@ -17,7 +17,7 @@ beforeAll(async () => {
   brokerPort = env.brokerPort
   //   schemaRegistryPort = 56785
   //   brokerPort = 9092
-}, 15000 /* increase timeout to 10 minutes (docker compose from scratch will probably take longer) */)
+}, 1000 * 60 * 15 /* increase timeout to 10 minutes (docker compose from scratch will probably take longer) */)
 
 afterAll(async () => {
   await testcontainers?.down()

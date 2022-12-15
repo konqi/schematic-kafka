@@ -13,21 +13,14 @@ let testcontainers: StartedDockerComposeEnvironment
 let schemaRegistryPort: number
 
 beforeAll(async () => {
-  // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
-  jest.setTimeout(1000 * 60 * 10)
-
   const env = await up()
   testcontainers = env.testcontainers
   schemaRegistryPort = env.schemaRegistryPort
-
-  jest.setTimeout(15000)
-})
+}, 1000 * 60 * 10 /* increase timeout to 10 minutes (docker compose from scratch will probably take longer) */)
 
 afterAll(async () => {
-  jest.setTimeout(60000)
-
   await testcontainers?.down()
-})
+}, 60000)
 
 describe("KafkaRegistryHelper (AVRO)", () => {
   const subject = "REGISTRY_TEST_SUBJECT"

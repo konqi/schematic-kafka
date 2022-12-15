@@ -6,21 +6,14 @@ let testcontainers: StartedDockerComposeEnvironment
 let schemaRegistryPort: number
 
 beforeAll(async () => {
-  // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
-  jest.setTimeout(1000 * 60 * 10)
-
   const env = await up()
   testcontainers = env.testcontainers
   schemaRegistryPort = env.schemaRegistryPort
-
-  jest.setTimeout(15000)
-})
+}, 1000 * 60 * 10 /* increase timeout to 10 minutes (docker compose from scratch will probably take longer) */)
 
 afterAll(async () => {
-  jest.setTimeout(60000)
-
   await testcontainers?.down()
-})
+}, 60000)
 
 describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
   // registryPort = 8081
@@ -75,7 +68,7 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
     expect(schema.id).toEqual(testSchemaId)
     expect(schema.version).toEqual(versions[0])
     expect(schema.subject).toEqual(subject)
-    expect(schema.schema.length).toBeGreaterThan(0)
+    expect(schema.schema?.length).toBeGreaterThan(0)
 
     const rawSchema = await client.getRawSchemaForSubjectAndVersion(subject, versions[0])
     expect(rawSchema).toEqual(schema.schema)
@@ -86,7 +79,7 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
     expect(schema.id).toEqual(testSchemaId)
     expect(schema.version).toBeGreaterThan(0)
     expect(schema.subject).toEqual(subject)
-    expect(schema.schema.length).toBeGreaterThan(0)
+    expect(schema.schema?.length).toBeGreaterThan(0)
   })
 
   it("can check a schema", async () => {
@@ -142,8 +135,8 @@ describe("SchemaRegistryClient AVRO (Black-Box Tests)", () => {
       schemaType: SchemaType.AVRO,
       schema: `{"type":"boolean"}`,
     })
-    await expect(request).rejects.toThrowError(
-      new SchemaRegistryError(409, "Schema being registered is incompatible with an earlier schema")
+    const rejection = await expect(request).rejects.toThrow(
+      /^Schema registry error: code: 409 - Schema being registered is incompatible with an earlier schema for subject/
     )
   })
 })

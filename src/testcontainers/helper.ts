@@ -2,7 +2,7 @@ import { AddressInfo, createServer } from "net"
 import { DockerComposeEnvironment, Wait } from "testcontainers"
 import { Type } from "protobufjs"
 
-const TAG = "5.5.4"
+const TAG = "7.2.1"
 
 export const findPort = () =>
   new Promise<number>((resolve) => {
@@ -19,14 +19,13 @@ export const up = async () => {
   const kafkaPort = await findPort()
 
   const testcontainers = await new DockerComposeEnvironment(".", "docker-compose.yml")
-    .withEnv("TAG", TAG)
-    .withEnv("KAFKA_PORT", `${kafkaPort}`)
-    .withWaitStrategy("zookeeper_1", Wait.forLogMessage("binding to port"))
-    .withWaitStrategy("broker_1", Wait.forLogMessage("Awaiting socket connections"))
+    .withEnvironment({ TAG: TAG, KAFKA_PORT: `${kafkaPort}` })
+    .withWaitStrategy("zookeeper-1", Wait.forLogMessage("binding to port"))
+    .withWaitStrategy("broker-1", Wait.forLogMessage("Awaiting socket connections"))
     .withStartupTimeout(1000 * 60 * 3)
     .up()
 
-  const schemaRegistryPort = testcontainers.getContainer("schema-registry_1").getMappedPort(8081)
+  const schemaRegistryPort = testcontainers.getContainer("schema-registry-1").getMappedPort(8081)
 
   return {
     testcontainers,

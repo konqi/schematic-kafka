@@ -11,24 +11,17 @@ let schemaRegistryPort: number
 let brokerPort: number
 
 beforeAll(async () => {
-  // increase timeout to 10 minutes (docker compose from scratch will probably take longer)
-  jest.setTimeout(1000 * 60 * 10)
-
   const env = await up()
   testcontainers = env.testcontainers
   schemaRegistryPort = env.schemaRegistryPort
   brokerPort = env.brokerPort
   //   schemaRegistryPort = 56785
   //   brokerPort = 9092
-
-  jest.setTimeout(15000)
-})
+}, 15000 /* increase timeout to 10 minutes (docker compose from scratch will probably take longer) */)
 
 afterAll(async () => {
-  jest.setTimeout(60000)
-
   await testcontainers?.down()
-})
+}, 60000)
 
 describe("kafkajs producer/consumer test (with AVRO)", () => {
   let registry: KafkaRegistryHelper
@@ -84,7 +77,7 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
 
     await consumer?.stop()
     await consumer?.disconnect()
-  })
+  }, 30000)
 
   it("sends and receives encoded message via kafka", async () => {
     // encode key/value
@@ -113,8 +106,8 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
     const [message] = awaited as [KafkaMessage]
 
     // decode key/value
-    const decodedKey = await registry.decode(message.key)
-    const decodedValue = await registry.decode(message.value)
+    const decodedKey = await registry.decode(message.key!)
+    const decodedValue = await registry.decode(message.value!)
 
     expect(decodedKey).toEqual(key)
     expect(decodedValue).toEqual(value)

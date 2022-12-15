@@ -34,4 +34,4 @@ jobs:
       - name: install dependencies
         run: yarn install
       - name: jest
-        run: yarn test:testcontainers --runInBand
+        run: yarn test:testcontainers

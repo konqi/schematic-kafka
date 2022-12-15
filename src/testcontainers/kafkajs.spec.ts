@@ -4,7 +4,7 @@ import { StartedDockerComposeEnvironment } from "testcontainers"
 import { KafkaRegistryHelper } from "../kafka-registry-helper"
 import { SchemaType } from "../schema-registry-client"
 import { up } from "./helper"
-import { Consumer, Kafka, KafkaMessage, Producer } from "kafkajs"
+import { Consumer, Kafka, KafkaMessage, Partitioners, Producer } from "kafkajs"
 
 let testcontainers: StartedDockerComposeEnvironment
 let schemaRegistryPort: number
@@ -15,8 +15,10 @@ beforeAll(async () => {
   testcontainers = env.testcontainers
   schemaRegistryPort = env.schemaRegistryPort
   brokerPort = env.brokerPort
-  //   schemaRegistryPort = 56785
-  //   brokerPort = 9092
+
+  // Without testcontainers:
+  // schemaRegistryPort = 52554
+  // brokerPort = 9092
 }, 1000 * 60 * 15 /* increase timeout to 10 minutes (docker compose from scratch will probably take longer) */)
 
 afterAll(async () => {
@@ -63,21 +65,21 @@ describe("kafkajs producer/consumer test (with AVRO)", () => {
       brokers: [`localhost:${brokerPort}`],
     })
 
-    producer = kafka.producer()
+    producer = kafka.producer({ createPartitioner: Partitioners.DefaultPartitioner })
     await producer.connect()
 
     consumer = kafka.consumer({ groupId: "schematic-kafka-test-group" })
     await consumer.connect()
 
     await consumer.subscribe({ topic })
-  })
+  }, 1000 * 60 * 5)
 
   afterAll(async () => {
     await producer?.disconnect()
 
     await consumer?.stop()
     await consumer?.disconnect()
-  }, 30000)
+  }, 1000 * 60 * 5)
 
   it("sends and receives encoded message via kafka", async () => {
     // encode key/value

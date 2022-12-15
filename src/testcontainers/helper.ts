@@ -2,7 +2,7 @@ import { AddressInfo, createServer } from "net"
 import { DockerComposeEnvironment, Wait } from "testcontainers"
 import { Type } from "protobufjs"
 
-const TAG = "7.2.1"
+const TAG = "7.3.0"
 
 export const findPort = () =>
   new Promise<number>((resolve) => {
@@ -21,7 +21,8 @@ export const up = async () => {
   const testcontainers = await new DockerComposeEnvironment(".", "docker-compose.yml")
     .withEnvironment({ TAG: TAG, KAFKA_PORT: `${kafkaPort}` })
     .withWaitStrategy("zookeeper-1", Wait.forLogMessage("binding to port"))
-    .withWaitStrategy("broker-1", Wait.forLogMessage("Awaiting socket connections"))
+    .withWaitStrategy("broker-1", Wait.forLogMessage("Ready to serve as the new controller"))
+    // .withWaitStrategy("broker_1", Wait.forLogMessage("Ready to serve as the new controller"))
     .withStartupTimeout(1000 * 60 * 3)
     .up()
 

@@ -228,11 +228,12 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
 
     it("responds with invalid response body", async () => {
       const subject = "subject"
-      nock("http://test.com").post(`/subjects/${subject}`).reply(404, "not json")
+      const message = "not json";
+      nock("http://test.com").post(`/subjects/${subject}`).reply(404, message)
 
       const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
 
-      await expect(result).rejects.toThrowError(new SyntaxError("Unexpected token o in JSON at position 1"))
+      await expect(result).rejects.toThrowError(new SyntaxError(`Unexpected token '${message.charAt(1)}', "${message}" is not valid JSON`))
     })
   })
 

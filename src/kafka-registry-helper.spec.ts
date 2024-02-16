@@ -80,10 +80,11 @@ describe("KafkaRegistryHelper with AVRO", () => {
   })
 
   it("schema registry return an error other than 404", async () => {
-    nock(host).post(`/subjects/${subject}`).once().reply(403, "⚠️")
+    const message = "⚠️";
+    nock(host).post(`/subjects/${subject}`).once().reply(403, message)
 
     const result = registry.encodeForSubject(subject, message, SchemaType.AVRO, schema)
-    await expect(result).rejects.toThrowError(new SyntaxError("Unexpected token ⚠ in JSON at position 0"))
+    await expect(result).rejects.toThrowError(new SyntaxError(`Unexpected token '${message.charAt(0)}', "${message}" is not valid JSON`))
   })
 
   it("use schema from registry / schema not provided for encodeForSubject", async () => {

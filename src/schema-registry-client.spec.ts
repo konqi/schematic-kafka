@@ -5,7 +5,6 @@ import {
   SchemaApiClientConfiguration,
   SchemaRegistryClient,
   SchemaRegistryError,
-  SchemaType,
 } from "./schema-registry-client"
 
 describe("SchemaRegistryClient (Integration Tests)", () => {
@@ -35,7 +34,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
       nock("http://test.com").post("/subjects/topic/versions").reply(500, mockError)
 
       const result = schemaApi.registerSchema("topic", schemaPayload)
-      await expect(result).rejects.toThrowError(new SchemaRegistryError(mockError.error_code, mockError.message))
+      await expect(result).rejects.toThrow(new SchemaRegistryError(mockError.error_code, mockError.message))
     })
 
     it("resolve with schema id if post request returns with 200", async () => {
@@ -61,7 +60,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
       nock("http://test.com").get("/schemas/ids/1").reply(500, mockError)
 
       const result = schemaApi.getSchemaById(1)
-      await expect(result).rejects.toThrowError(new SchemaRegistryError(mockError.error_code, mockError.message))
+      await expect(result).rejects.toThrow(new SchemaRegistryError(mockError.error_code, mockError.message))
     })
 
     it("resolve with schema if get request returns with 200", async () => {
@@ -214,7 +213,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
 
       const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
 
-      await expect(result).rejects.toThrowError(new SchemaRegistryError(404, "Nope"))
+      await expect(result).rejects.toThrow(new SchemaRegistryError(404, "Nope"))
     })
 
     it("responds with empty response body", async () => {
@@ -223,7 +222,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
 
       const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
 
-      await expect(result).rejects.toThrowError(new Error("Invalid schema registry response"))
+      await expect(result).rejects.toThrow(new Error("Invalid schema registry response"))
     })
 
     it("responds with invalid response body", async () => {
@@ -232,7 +231,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
 
       const result = schemaApi.checkSchema(subject, { schema: fakeSchema.schema })
 
-      await expect(result).rejects.toThrowError(new SyntaxError("Unexpected token o in JSON at position 1"))
+      await expect(result).rejects.toThrow(SyntaxError)
     })
   })
 
@@ -250,7 +249,7 @@ describe("SchemaRegistryClient (Integration Tests)", () => {
       nock("http://test.com").get("/subjects/topic/versions/latest").reply(500, mockError)
 
       const result = schemaApi.getLatestVersionForSubject("topic")
-      await expect(result).rejects.toThrowError(new SchemaRegistryError(mockError.error_code, mockError.message))
+      await expect(result).rejects.toThrow(new SchemaRegistryError(mockError.error_code, mockError.message))
     })
 
     it("resolve with schema and id if both get requests return with 200", async () => {

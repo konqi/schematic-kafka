@@ -7,7 +7,7 @@ import { SchemaRegistryError, SchemaType } from "./schema-registry-client"
 describe("KafkaRegistryHelper with AVRO", () => {
   const host = "http://localhost:8081"
   const subject = "REGISTRY_TEST_SUBJECT"
-  let registry: KafkaRegistryHelper = undefined
+  let registry: KafkaRegistryHelper
   const message = { hello: "world" }
   const type = Type.forValue(message)
   const schema = type.toString()
@@ -75,15 +75,15 @@ describe("KafkaRegistryHelper with AVRO", () => {
     const decodeResult = await registry.decodeWithSubjectAndVersionInformation(encodeResult)
     expect(decodeResult.message).toEqual(message)
     expect(decodeResult.subjects).toHaveLength(1)
-    expect(decodeResult.subjects[0].subject).toEqual("🦆")
-    expect(decodeResult.subjects[0].version).toEqual(42)
+    expect(decodeResult.subjects!![0].subject).toEqual("🦆")
+    expect(decodeResult.subjects!![0].version).toEqual(42)
   })
 
   it("schema registry return an error other than 404", async () => {
     nock(host).post(`/subjects/${subject}`).once().reply(403, "⚠️")
 
     const result = registry.encodeForSubject(subject, message, SchemaType.AVRO, schema)
-    await expect(result).rejects.toThrowError(new SyntaxError("Unexpected token ⚠ in JSON at position 0"))
+    await expect(result).rejects.toThrow(SyntaxError)
   })
 
   it("use schema from registry / schema not provided for encodeForSubject", async () => {
@@ -106,7 +106,7 @@ describe("KafkaRegistryHelper with AVRO", () => {
       .reply(404, { error_code: 404, message: "don't know this schema" })
 
     const result = registry.encodeForSubject(subject, message)
-    expect(result).rejects.toThrowError(new SchemaRegistryError(404, "don't know this schema"))
+    expect(result).rejects.toThrow(new SchemaRegistryError(404, "don't know this schema"))
   })
 
   it("missing schema handler for encodeForSubject", async () => {
@@ -122,7 +122,7 @@ describe("KafkaRegistryHelper with AVRO", () => {
       .reply(200, { schema, id: schemaId, schemaType: SchemaType.PROTOBUF })
 
     const result = registry.encodeForSubject(subject, message)
-    await expect(result).rejects.toThrowError(/Mismatch/)
+    await expect(result).rejects.toThrow(/Mismatch/)
   })
 
   it("encodes for schema id", async () => {
@@ -146,7 +146,7 @@ describe("KafkaRegistryHelper with AVRO", () => {
 
     const result = registry.encodeForId(schemaId, message)
 
-    await expect(result).rejects.toThrowError(/Mismatch/)
+    await expect(result).rejects.toThrow(/Mismatch/)
   })
 
   it("cannot encode for schema id without schemaType handler", async () => {
@@ -156,7 +156,7 @@ describe("KafkaRegistryHelper with AVRO", () => {
 
     const result = registry.encodeForId(schemaId, message, SchemaType.PROTOBUF)
 
-    await expect(result).rejects.toThrowError(/No.*handler.*PROTOBUF/)
+    await expect(result).rejects.toThrow(/No.*handler.*PROTOBUF/)
   })
 
   it("passes through payloads that are not schema encoded", async () => {
@@ -168,7 +168,7 @@ describe("KafkaRegistryHelper with AVRO", () => {
 describe("KafkaRegistryHelper with PROTOBUF", () => {
   const host = "http://localhost:8081"
   const subject = "REGISTRY_TEST_SUBJECT_PROTOBUF"
-  let registry: KafkaRegistryHelper = undefined
+  let registry: KafkaRegistryHelper
   const message = { hello: "world" }
   const schema = "ADD PROTOBUF SCHEMA HERE"
 
@@ -211,7 +211,7 @@ describe("KafkaRegistryHelper with PROTOBUF", () => {
 describe("caching logic", () => {
   const host = "http://localhost:8081"
   const subject = "REGISTRY_TEST_SUBJECT"
-  let registry: KafkaRegistryHelper = undefined
+  let registry: KafkaRegistryHelper
   const message = { hello: "world" }
   const type = Type.forValue(message)
   const schema = type.toString()

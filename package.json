@@ -13,7 +13,7 @@
     "docker:up": "docker-compose -f docker-compose.yml -p scematic-kafka up -d",
     "docker:down": "docker-compose -f docker-compose.yml -p scematic-kafka down",
     "build": "tsc",
-    "prebuild": "rimraf dist"
+    "prebuild": "npx rimraf dist"
   },
   "types": "dist/index.d.ts",
   "keywords": [

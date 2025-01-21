@@ -2936,9 +2936,9 @@ test-exclude@^6.0.0:
     minimatch "^3.0.4"
 
 testcontainers@^10.7.1:
-  version "10.16.0"
-  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.16.0.tgz#8a7e69ada5cd2c6cce1c6db72b3a3e8e412fcaf6"
-  integrity sha512-oxPLuOtrRWS11A+Yn0+zXB7GkmNarflWqmy6CQJk8KJ75LZs2/zlUXDpizTbPpCGtk4kE2EQYwFZjrE967F8Wg==
+  version "10.17.1"
+  resolved "https://registry.yarnpkg.com/testcontainers/-/testcontainers-10.17.1.tgz#075ff24cec1fb550dc9990e33cd8c24e1cb67b82"
+  integrity sha512-pYwpm6iH1UtZFVoSWjfUol4JCMyX4UksA5fwDotlTp2GgMqoHud+A+PY60kYUBVdSJJ/5AsSqhhFRvoK4ijISg==
   dependencies:
     "@balena/dockerignore" "^1.0.2"
     "@types/dockerode" "^3.3.29"
